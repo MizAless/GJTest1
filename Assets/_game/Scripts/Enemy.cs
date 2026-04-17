@@ -24,11 +24,22 @@ public class Enemy : MonoBehaviour
             OnHit();
     }
 
+    public void TakeDamage()
+    {
+        OnHit();
+        SelfDestroy();
+    }
+    
     private void OnHit()
     {
-        Destroy(gameObject);
         var onDeadVFX =  Instantiate(_onDeadVFX, transform.position, transform.rotation);
         onDeadVFX.Play();
+    }
+    
+    private void SelfDestroy()
+    {
+        G.Enemies.Remove(this);
+        Destroy(gameObject);
     }
 
     private void MoveToPlayer()

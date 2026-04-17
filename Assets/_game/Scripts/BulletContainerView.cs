@@ -24,7 +24,7 @@ public class BulletContainerView : MonoBehaviour
 
     private void BulletContainerOnShooted()
     {
-        Update(_bulletContainer.CurrentBullets);
+        UpdateView(_bulletContainer.BulletsRemaining);
     }
 
     private void Start()
@@ -35,7 +35,7 @@ public class BulletContainerView : MonoBehaviour
         }
     }
     
-    public void Update(int currentBullets)
+    public void UpdateView(int currentBullets)
     {
         for (int i = 0; i < _bullets.Count; i++)
         {

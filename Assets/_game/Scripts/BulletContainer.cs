@@ -1,88 +1,96 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BulletContainer : MonoBehaviour
 {
-    public int MaxBullets => _maxBullets;
-    
+    [SerializeField] private float _reloadTime = 1;
     [SerializeField] private int _maxBullets = 6;
-    [SerializeField] private float _reloadTime;
-
-    private int _currentBullets;
     
-    private bool _isReloading = false;
+    public int MaxBullets => _maxBullets;
 
-    public int CurrentBullets => _currentBullets;
+    public int BulletsRemaining => _bullets.Count - _shootedBulletsCount;
     
+    private List<BulletData> _bullets = new List<BulletData>();
+    private BulletData _currentBullet;
+    private int _currentBulletIndex => _shootedBulletsCount % _bullets.Count;
+    private int _shootedBulletsCount;
+    private bool _isReloading;
+
     public event Action Shooted;
     public event Action Reloaded;
 
-    private void Start()
+    // public void Init()
+    // {
+       //  for (int i = 0; i < MaxBullets; i++)
+       //  {
+       //      if (i % 3 == 0)
+			    // _bullets.Add(PenetrationBullet.Create());
+       //      if (i % 3 == 1)
+       //          _bullets.Add(RicochetBullet.Create());
+       //      if (i % 3 == 2)
+       //          _bullets.Add(ExplosionBullet.Create());
+       //  }
+    // }
+
+    public void Init()
     {
-        _currentBullets = _maxBullets;
+        for (int i = 0; i < MaxBullets; i++)
+        {
+            _bullets.Add(DefaultBullet.Create());
+        }
+    }
+    
+    public bool TryShoot(out BulletData bulletData)
+    {
+        bulletData = null;
         
-        // StartCoroutine(Reloading());
+        if (_isReloading)
+            return false;
+        
+        if (_shootedBulletsCount == _bullets.Count)
+            return false;
+        
+        bulletData = _bullets[_currentBulletIndex];
+        
+        _shootedBulletsCount++;
+        
+        Shooted?.Invoke();
+        
+        if (_shootedBulletsCount == _bullets.Count)
+            TryStartFullReloading();
+        
+        return true;
     }
 
-    // private IEnumerator Reloading()
-    // {
-    //     while (true)
-    //     {
-    //         TryReload();
-    //         yield return new WaitForSeconds(_reloadTime);
-    //     }
-    // }
-    
-    public void TryReload()
-    {
-        if (_currentBullets >= _maxBullets)
-            return;
-        
-        _currentBullets++;
-        Reloaded?.Invoke();
-    }
-    
     private void TryStartFullReloading()
     {
-        if (_currentBullets >= _maxBullets)
-            return;
-        
-        StartCoroutine(StartFullReloading());
+        StartCoroutine(FullReloadCoroutine());
     }
-    
-    private IEnumerator StartFullReloading()
+
+    private IEnumerator FullReloadCoroutine()
     {
         if (_isReloading)
             yield break;
 
         _isReloading = true;
         
-        yield return FullReloadCoroutine();
+        yield return new WaitForSeconds(_reloadTime);
+
+        _shootedBulletsCount = 0;
+        ResetBullets();
+        
+        Reloaded?.Invoke();
         
         _isReloading = false;
     }
     
-    private IEnumerator FullReloadCoroutine()
+    private void ResetBullets()
     {
-        yield return new WaitForSeconds(_reloadTime);
-        
-        _currentBullets = _maxBullets;
-        Reloaded?.Invoke();
-    }
-
-    public bool TryShoot()
-    {
-        if (_currentBullets < 1)
-            return false;
-
-        _currentBullets--;
-        
-        Shooted?.Invoke();
-        
-        if (_currentBullets == 0)
-            TryStartFullReloading();
-        
-        return true;
+        foreach (var bullet in _bullets)
+        {
+            bullet.OnReset();
+        }
     }
 }

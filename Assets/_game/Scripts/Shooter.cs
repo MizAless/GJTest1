@@ -9,10 +9,15 @@ public class Shooter : MonoBehaviour
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private ParticleSystem _shootVFX;
     [SerializeField] private float _shootForce;
-    
+
+    private void Start()
+    {
+        _bulletContainer.Init();
+    }
+
     private void Shoot(){
 
-        if (!_bulletContainer.TryShoot())
+        if (!_bulletContainer.TryShoot(out var bulletData))
             return;
         
         var from = transform.position;
@@ -23,7 +28,8 @@ public class Shooter : MonoBehaviour
         direction.Normalize();
         
         var bullet = Instantiate(_bulletPrefab, from, Quaternion.identity);
-        bullet.Init(direction, _shootForce);
+        bullet.Init(bulletData);
+        bullet.Launch(direction, _shootForce);
         OnShoot(direction);
 
     }

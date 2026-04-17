@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d37e65b7c9b04b3794eab425f1309a1c, type: 3}
+  m_Name: PenetrationBUllet
+  m_EditorClassIdentifier: 
+  BaseSpeed: 10
+  BulletVisualPrefab: {fileID: 0}
+  Modules:
+  - {fileID: 11400000, guid: f9ebcd7458a0d8a48aef977878cac8e0, type: 2}
+  Rarity: 0
