@@ -1,0 +1,65 @@
+[
+  {
+    "name": "kenney-tiny-dungeon",
+    "source": "https://kenney.nl/assets/tiny-dungeon",
+    "download": "https://kenney.nl/media/pages/assets/tiny-dungeon/f8422efb44-1674742415/kenney_tiny-dungeon.zip",
+    "license": "CC0 1.0",
+    "bytes": 98530,
+    "sha256": "c109438ab06f65fd80f9b2686a4cf9c7c11dc64444b47333ec71d602f8bb5fc7",
+    "imported_files": 138
+  },
+  {
+    "name": "kenney-tiny-battle",
+    "source": "https://kenney.nl/assets/tiny-battle",
+    "download": "https://kenney.nl/media/pages/assets/tiny-battle/c1c25ac1f3-1691487575/kenney_tiny-battle.zip",
+    "license": "CC0 1.0",
+    "bytes": 131452,
+    "sha256": "7751ec7d9a07e57baa9fa1174d6f78fcd779a050377227afee77993c73cb5f9e",
+    "imported_files": 204
+  },
+  {
+    "name": "kenney-ui-pack",
+    "source": "https://kenney.nl/assets/ui-pack",
+    "download": "https://kenney.nl/media/pages/assets/ui-pack/f651646eab-1718203990/kenney_ui-pack.zip",
+    "license": "CC0 1.0",
+    "bytes": 1229750,
+    "sha256": "a8a14a234911eb648c062622915c93e79e94e97cb7f9f375a70f6617f1174318",
+    "imported_files": 1307
+  },
+  {
+    "name": "kenney-top-down-shooter",
+    "source": "https://kenney.nl/assets/top-down-shooter",
+    "download": "https://kenney.nl/media/pages/assets/top-down-shooter/230204340a-1677694684/kenney_top-down-shooter.zip",
+    "license": "CC0 1.0",
+    "bytes": 2626248,
+    "sha256": "433a2aa4fd6b617cd143528bf12622811ebe9c56fe1975bb664461b58cd2f2f5",
+    "imported_files": 591
+  },
+  {
+    "name": "kenney-particle-pack",
+    "source": "https://kenney.nl/assets/particle-pack",
+    "download": "https://kenney.nl/media/pages/assets/particle-pack/f8fe0f8cb8-1677578741/kenney_particle-pack.zip",
+    "license": "CC0 1.0",
+    "bytes": 15001764,
+    "sha256": "b631d4b07f7002549fdcf155f01141ad482f79f3440e4e301eed49ce5f1d8958",
+    "imported_files": 194
+  },
+  {
+    "name": "0x72-dungeon-tileset-ii",
+    "source": "https://0x72.itch.io/dungeontileset-ii",
+    "download": "https://0x72.itch.io/dungeontileset-ii/purchase",
+    "license": "CC0 1.0",
+    "bytes": 416379,
+    "sha256": "a5b23341ebc831d7798bfb9666d864a08c079bb7aed18e3cf023a27d517c1512",
+    "imported_files": 745
+  },
+  {
+    "name": "kenney-roguelike-indoors",
+    "source": "https://kenney.nl/assets/roguelike-indoors",
+    "download": "https://kenney.nl/media/pages/assets/roguelike-indoors/4d5b520b03-1702169567/kenney_roguelike-indoors.zip",
+    "license": "CC0 1.0",
+    "bytes": 112227,
+    "sha256": "578cfdb066c4a9de78a52535adaf953728889b2cf268441bd4d338844f7aa586",
+    "imported_files": 6
+  }
+]

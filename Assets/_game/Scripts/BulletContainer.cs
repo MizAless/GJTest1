@@ -38,7 +38,7 @@ public class BulletContainer : MonoBehaviour
     {
         for (int i = 0; i < MaxBullets; i++)
         {
-            _bullets.Add(DefaultBullet.Create());
+            _bullets.Add(ExplosionBullet.Create());
         }
     }
     

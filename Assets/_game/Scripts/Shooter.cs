@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -15,18 +14,54 @@ public class Shooter : MonoBehaviour
         _bulletContainer.Init();
     }
 
-    private void Shoot(){
+    public Enemy GetNearestEnemy()
+    {
+        Enemy nearest = null;
+        float nearestDistance = float.PositiveInfinity;
+        Vector3 from = transform.position;
+
+        foreach (var enemy in G.Enemies)
+        {
+            if (enemy == null || !enemy.isActiveAndEnabled)
+                continue;
+
+            float distance = (enemy.transform.position - from).sqrMagnitude;
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearest = enemy;
+            }
+        }
+
+        return nearest;
+    }
+
+    private void Shoot()
+    {
+        var target = GetNearestEnemy();
+        var from = transform.position;
+        Vector3 direction;
+        if (target != null)
+        {
+            direction = target.transform.position - from;
+        }
+        else
+        {
+            var camera = Camera.main;
+            var mousePosition = Input.mousePosition;
+            mousePosition.z = from.z - camera.transform.position.z;
+            direction = camera.ScreenToWorldPoint(mousePosition) - from;
+        }
+
+        direction.z = 0f;
+        if (direction.sqrMagnitude < 0.0001f)
+            direction = transform.right;
 
         if (!_bulletContainer.TryShoot(out var bulletData))
             return;
-        
-        var from = transform.position;
-        
-        Vector2 shootPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        
-        Vector3 direction = new Vector3(shootPosition.x, shootPosition.y, 0) - from;
+
         direction.Normalize();
-        
+
         var bullet = Instantiate(_bulletPrefab, from, Quaternion.identity);
         bullet.Init(bulletData);
         bullet.Launch(direction, _shootForce);
@@ -45,7 +80,7 @@ public class Shooter : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
         {
             Shoot();
         }

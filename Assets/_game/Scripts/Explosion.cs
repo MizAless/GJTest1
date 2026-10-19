@@ -1,29 +1,17 @@
-﻿using System.Collections;
 using UnityEngine;
 
 public class Explosion : MonoBehaviour
 {
+    [SerializeField] private float lifetime = 0.52f;
+
     private void Start()
     {
-        StartCoroutine(SelfDestroyDelayed());
+        Destroy(gameObject, lifetime);
     }
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.TryGetComponent<Enemy>(out var enemy)) 
-            return;
-	    
-        enemy.TakeDamage();
-    }
-    
-    private IEnumerator SelfDestroyDelayed()
-    {
-        yield return new WaitForSeconds(0.5f);
-        SelfDestroy();
-    }
-    
-    private void SelfDestroy()
-    {
-        Destroy(gameObject);
+        if (other.TryGetComponent<Enemy>(out var enemy))
+            enemy.TakeDamage();
     }
 }

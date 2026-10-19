@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using UnityEngine.SceneManagement;
+
 public class EntryPoint : MonoBehaviour
 {
     [SerializeField] private Explosion _explosionPrefab;
@@ -15,5 +17,14 @@ public class EntryPoint : MonoBehaviour
         G.Init(_enemySpawner, _explosionPrefab);
 
         StartCoroutine(_gameScript.Start());
+    }
+
+    private void Update()
+    {
+        if (!Input.GetKeyDown(KeyCode.R))
+            return;
+
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

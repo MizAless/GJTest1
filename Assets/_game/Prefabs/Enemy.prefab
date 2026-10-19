@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3550511817217055350}
   - component: {fileID: 3644032866485091050}
   - component: {fileID: 5978370555814383450}
+  - component: {fileID: 1900000002}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6669, y: 0.8773, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -45,8 +46,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6330f6fc661f485399e22ab4ae88431d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   _player: {fileID: 0}
   _speed: 2
   _onDeadVFX: {fileID: 1021408184984333791, guid: 4ef954fa6651bf74e8e0649319331004, type: 3}
@@ -90,9 +91,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.312, g: 0, b: 0, a: 1}
+  m_SortingOrder: 10
+  m_Sprite: {fileID: 21300000, guid: b2bcb36da1d2451b8a051c4b11b0304b, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -172,5 +173,25 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.6, y: 0.7}
   m_EdgeRadius: 0
+--- !u!114 &1900000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3637406703804334611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1117d8bb84ca4265a4375d898ab7d7c2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _frames:
+  - {fileID: 21300000, guid: b2bcb36da1d2451b8a051c4b11b0304b, type: 3}
+  - {fileID: 21300000, guid: 348c52f1c5334daca0639a3767286e59, type: 3}
+  - {fileID: 21300000, guid: 8c99a001514b4012a1c5d6402f0fa9f2, type: 3}
+  - {fileID: 21300000, guid: 08219c5fa774458c9959e60c34bb4941, type: 3}
+  _framesPerSecond: 8
+  _faceMovement: 1
+  _faceNearestEnemy: 0
