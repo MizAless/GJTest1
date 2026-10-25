@@ -90,7 +90,8 @@ public class RunUI : MonoBehaviour
     void RefreshRewards()
     {
         bool module=_run.ChoosingModule;
-        _title.text=(_run.Round==0?"Подготовка к первому раунду":"Раунд "+_run.Round+" пройден")+" · выберите "+(module?"модуль":"патрон");
+        string rewardType = module ? "модуль" : "патрон";
+        _title.text = "Волна " + _run.Round + " пройдена · выберите " + rewardType;
         _subtitle.text=_run.Round==0?"Получен стартовый "+_run.Drum.Cartridges[0].Name+". Остальные патроны обычные. Выберите модуль для любого гнезда.":"Награда: один случайный "+(module?"модуль для гнезда":"патрон")+" из трёх. Сравните свойства и выберите место установки.";
         for(int i=0;i<3;i++)
         {
@@ -109,10 +110,25 @@ public class RunUI : MonoBehaviour
     }
     public void ShowVictory()
     {
-        _modal.gameObject.SetActive(true); foreach(Transform child in _modal) child.gameObject.SetActive(false);
-        var t=Label(_modal,"Victory",140,180,1000,160,42);t.alignment=TextAnchor.MiddleCenter;t.text="ТРИ РАУНДА ПРОЙДЕНЫ\nБосс повержен";t.color=Gold;
-        var detail=Label(_modal,"Statistics",140,350,1000,70,22);detail.alignment=TextAnchor.MiddleCenter;detail.text="Всего выстрелов: "+_run.Shooter.CompletedShots+"\nПопробуйте новый барабан в следующем забеге.";
-        var b=MakeButton(_modal,"Restart",440,470,400,65,()=>{Time.timeScale=1;SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);});TextOf(b,"Новый забег · R",Gold);
+        _modal.gameObject.SetActive(true);
+        foreach (Transform child in _modal)
+        {
+            child.gameObject.SetActive(false);
+        }
+        Text title = Label(_modal, "Victory", 140, 180, 1000, 160, 42);
+        title.alignment = TextAnchor.MiddleCenter;
+        title.text = "ВСЕ " + GameScript.WaveCount + " ВОЛН ПРОЙДЕНЫ\nБосс повержен";
+        title.color = Gold;
+        Text details = Label(_modal, "Statistics", 140, 350, 1000, 70, 22);
+        details.alignment = TextAnchor.MiddleCenter;
+        details.text = "Всего выстрелов: " + _run.Shooter.CompletedShots
+            + "\nПопробуйте новый барабан в следующем забеге.";
+        Button restart = MakeButton(_modal, "Restart", 440, 470, 400, 65, () =>
+        {
+            Time.timeScale = 1;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        });
+        TextOf(restart, "Новый забег · R", Gold);
     }
     void Inspect(int slot)
     {
@@ -131,7 +147,24 @@ public class RunUI : MonoBehaviour
     void Update() { if(_run!=null) Refresh(); }
     void Refresh()
     {
-        _round.text=_run.Victory?"Победа":_run.AwaitingReward?"Выбор награды · бой на паузе":"Раунд "+_run.Round+" / 3 · пачка "+_run.Pack+" / "+_run.PackCount+" · врагов "+G.Enemies.Count+(_run.Drum.IsReloading?" · ПЕРЕЗАРЯДКА":"");
+        if (_run.Victory)
+        {
+            _round.text = "Победа";
+        }
+        else if (_run.AwaitingReward)
+        {
+            _round.text = "Выбор награды · бой на паузе";
+        }
+        else
+        {
+            _round.text = "Волна " + _run.Round + " / " + GameScript.WaveCount
+                + " · группа " + _run.Pack + " / " + _run.PackCount
+                + " · врагов " + G.Enemies.Count;
+            if (_run.Drum.IsReloading)
+            {
+                _round.text += " · ПЕРЕЗАРЯДКА";
+            }
+        }
         for(int i=0;i<_hud.Count;i++)
         {
             var item=_run.Drum.Cartridges[i]; var module=_run.Drum.Sockets[i];

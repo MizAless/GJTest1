@@ -84,10 +84,29 @@ public static class AmmoGenerator
     public static AmmoItem Generate(bool module, bool starter = false)
     {
         float roll = UnityEngine.Random.value;
-        var rarity = starter ? BulletRarity.Rare : roll < .55f ? BulletRarity.Common : roll < .85f ? BulletRarity.Rare : roll < .97f ? BulletRarity.Epic : BulletRarity.Legendary;
+        BulletRarity rarity = BulletRarity.Common;
+        if (!starter)
+        {
+            if (roll >= 0.97f)
+            {
+                rarity = BulletRarity.Legendary;
+            }
+            else if (roll >= 0.85f)
+            {
+                rarity = BulletRarity.Epic;
+            }
+            else if (roll >= 0.55f)
+            {
+                rarity = BulletRarity.Rare;
+            }
+        }
         var item = new AmmoItem { Rarity = rarity };
         var choices = Enumerable.Range(0, 16).OrderBy(_ => UnityEngine.Random.value).Take((int)rarity + 1).ToList();
-        if (starter) choices = new List<int> { UnityEngine.Random.Range(0,5), UnityEngine.Random.Range(5,10) };
+        // One standalone property: projectile behavior or a status, without rarity bonuses.
+        if (starter)
+        {
+            choices = new List<int> { UnityEngine.Random.Range(0, 10) };
+        }
         int n = rarity >= BulletRarity.Epic ? 2 : 1;
         foreach (int k in choices)
         {

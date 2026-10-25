@@ -49,6 +49,7 @@ public static class ShotCadenceValidation
                 for (int slot = 0; slot < _drum.MaxBullets; slot++)
                 {
                     _drum.Cartridges[slot] = AmmoItem.Ordinary();
+                    _drum.Sockets[slot] = null;
                 }
                 _drum.Cartridges[0].Properties.Fan = 2;
                 _drum.Cartridges[1].Properties.Burst = 3;
