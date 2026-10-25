@@ -28,8 +28,13 @@ public class Shooter : MonoBehaviour
     [SerializeField] Bullet _bulletPrefab;
     [SerializeField] ParticleSystem _shootVFX;
     [SerializeField] float _shootForce = 30;
+    [SerializeField, Min(0)] private float _shotInterval = 0.15f;
+    private float _nextShotTime;
+    private int _activeShots;
+    private int _launchingShots;
+    private int _startedShots;
     public BulletContainer Container => _bulletContainer;
-    public bool IsFiring { get; private set; }
+    public bool IsFiring => _activeShots > 0;
     public int CompletedShots { get; private set; }
     readonly HashSet<Enemy> _pastTargets = new HashSet<Enemy>();
     void Start() { _bulletContainer.Init(); }
@@ -40,20 +45,33 @@ public class Shooter : MonoBehaviour
     }
     public bool TryFire()
     {
-        if (IsFiring || (RunDirector.Instance != null && !RunDirector.Instance.CombatActive)) return false;
-        if (!_bulletContainer.BeginShot(out int slot)) return false;
-        StartCoroutine(Fire(slot)); return true;
+        if (Time.time < _nextShotTime || (RunDirector.Instance != null && !RunDirector.Instance.CombatActive))
+        {
+            return false;
+        }
+        if (!_bulletContainer.BeginShot(out int slot))
+        {
+            return false;
+        }
+
+        // Cadence is measured from launch, independent of burst length and projectile lifetime.
+        _nextShotTime = Time.time + _shotInterval;
+        _activeShots++;
+        _launchingShots++;
+        _startedShots++;
+        StartCoroutine(Fire(slot, _startedShots));
+        return true;
     }
-    IEnumerator Fire(int slot)
+    private IEnumerator Fire(int slot, int shotNumber)
     {
-        IsFiring = true;
         var context = new ShotContext { Owner=this };
-        foreach (var layer in _bulletContainer.Layers(slot))
+        AmmoItem[] layers = _bulletContainer.Layers(slot).ToArray();
+        foreach (var layer in layers)
             if (layer.Trigger == AmmoTrigger.ShotNext || layer.Trigger == AmmoTrigger.ShotPrevious || layer.Trigger == AmmoTrigger.ShotTwo)
                 foreach (int target in _bulletContainer.Destinations(slot,layer.Trigger)) _bulletContainer.Grant(slot,target,layer);
         var profile = _bulletContainer.Profiles[slot].Copy();
         yield return LaunchVolley(context,profile);
-        foreach (var layer in _bulletContainer.Layers(slot))
+        foreach (var layer in layers)
         {
             if (layer.Trigger == AmmoTrigger.ShotNextEffect)
             {
@@ -62,9 +80,20 @@ public class Shooter : MonoBehaviour
                 yield return LaunchVolley(context,_bulletContainer.Profiles[next].Copy());
             }
         }
+        _launchingShots--;
+        // Reload after emission finishes, without waiting for projectiles to hit or expire.
+        if (_launchingShots == 0 && _bulletContainer.BulletsRemaining == 0)
+        {
+            StartCoroutine(_bulletContainer.Reload());
+        }
         float end = Time.time + 3f;
         while (context.Pending > 0 && Time.time < end) yield return null;
-        foreach (var layer in _bulletContainer.Layers(slot))
+        // Resolve ticks and past-target effects in cartridge order, even if later shots hit sooner.
+        while (CompletedShots + 1 != shotNumber)
+        {
+            yield return null;
+        }
+        foreach (var layer in layers)
             if (layer.Trigger == AmmoTrigger.ShotPastTargets)
                 foreach (var enemy in _pastTargets.ToArray())
                     if (enemy != null && enemy.IsAlive) { enemy.ReceiveHit(profile,Vector3.zero); context.HitTargets.Add(enemy); }
@@ -73,8 +102,7 @@ public class Shooter : MonoBehaviour
         foreach (var enemy in context.HitTargets) if (enemy != null && enemy.IsAlive) _pastTargets.Add(enemy);
         Enemy.TickAllStatuses(G.Enemies);
         CompletedShots++;
-        if (_bulletContainer.BulletsRemaining == 0) yield return _bulletContainer.Reload();
-        IsFiring = false;
+        _activeShots--;
     }
     IEnumerator LaunchVolley(ShotContext context, CombatProfile profile)
     {
