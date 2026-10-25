@@ -6,7 +6,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: IceTipMesh
+  m_Name: IceTip rigid modular part
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 4
     localAABB:
-      m_Center: {x: 0, y: 1.3948865, z: 0.004}
-      m_Extent: {x: 0.5602306, y: 1.2123568, z: 0}
+      m_Center: {x: 0, y: 0.96800405, z: 0.004}
+      m_Extent: {x: 0.32493374, y: 0.7031669, z: 0}
   m_Shapes:
     vertices: []
     shapes: []
@@ -97,7 +97,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 128
-    _typelessdata: 466b0fbf16e93a3e6f12833b0000000000000000ffff7fbf5f23903e8bf0ae3d466b0fbf13dd26406f12833b0000000000000000ffff7fbf5f23903ee549643f466b0f3f16e93a3e6f12833b0000000000000000ffff7fbf50ee373f8bf0ae3d466b0f3f13dd26406f12833b0000000000000000ffff7fbf50ee373fe549643f
+    _typelessdata: b75da6bebd98873e6f12833b0000000000000000000080bf5f23903e8bf0ae3db75da6beeee8d53f6f12833b0000000000000000000080bf5f23903ee549643fb75da63ebd98873e6f12833b0000000000000000000080bf50ee373f8bf0ae3db75da63eeee8d53f6f12833b0000000000000000000080bf50ee373fe549643f
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
