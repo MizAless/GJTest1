@@ -1,21 +1,12 @@
-﻿using System.Collections;
+using System.Collections.Generic;
 
+// Every inner array is one pack. Spawn order is explicit and testable.
 public class GameScript
 {
-    public IEnumerator Start()
+    public static int[][] Round(int number)
     {
-        G.EnemySpawner.CallSpawn(6);
-        yield return null;
-        yield return IsEnemiesCountBiggerThen(0);
-        G.UpgradeGiver.ChooseUpgrade();
-
-    }
-    
-    public IEnumerator IsEnemiesCountBiggerThen(int amount)
-    {
-        while (G.Enemies.Count > amount)
-        {
-            yield return null;
-        }
+        if(number==1) return new[] { new[] {30,30,30,30,30,30} };
+        if(number==2) return new[] { new[] {30,30,50,50}, new[] {50,50,30,80}, new[] {50,50,30,80} };
+        return new[] { new[] {50,50,50,50}, new[] {50,50,50,80}, new[] {50,50,80,80}, new[] {50,50,80,80}, new[] {50,50,50,200} };
     }
 }

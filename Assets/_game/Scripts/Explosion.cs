@@ -9,9 +9,10 @@ public class Explosion : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    public void Visual(float radius, Color color)
     {
-        if (other.TryGetComponent<Enemy>(out var enemy))
-            enemy.TakeDamage();
+        var shape = GetComponent<CircleCollider2D>();
+        if (shape != null && shape.radius > 0) transform.localScale *= radius / (shape.radius * Mathf.Abs(transform.lossyScale.x));
+        foreach (var collider in GetComponentsInChildren<Collider2D>()) collider.enabled = false;
     }
 }

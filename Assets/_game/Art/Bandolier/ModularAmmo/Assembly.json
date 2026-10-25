@@ -1,0 +1,202 @@
+﻿[
+    {
+        "file":  "AcceleratorTip.png",
+        "imageSize":  [
+                          1158,
+                          1358
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    296,
+                                    221,
+                                    863,
+                                    1138
+                                ],
+        "connectorWidthPixels":  314,
+        "pixelsPerUnit":  392.5,
+        "spritePivot":  [
+                            0.5,
+                            0.21539027982326953
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "Casing.png",
+        "imageSize":  [
+                          827,
+                          1902
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    139,
+                                    235,
+                                    688,
+                                    1736
+                                ],
+        "connectorWidthPixels":  489,
+        "pixelsPerUnit":  489,
+        "spritePivot":  [
+                            0.50120918984280527,
+                            0.82097791798107256
+                        ],
+        "connectionWidthUnits":  1
+    },
+    {
+        "file":  "ConductorTip.png",
+        "imageSize":  [
+                          1192,
+                          1320
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    283,
+                                    131,
+                                    908,
+                                    1192
+                                ],
+        "connectorWidthPixels":  369,
+        "pixelsPerUnit":  461.25,
+        "spritePivot":  [
+                            0.49958053691275167,
+                            0.16022727272727277
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "FanTip.png",
+        "imageSize":  [
+                          1243,
+                          1265
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    50,
+                                    111,
+                                    1193,
+                                    1159
+                                ],
+        "connectorWidthPixels":  265,
+        "pixelsPerUnit":  331.25,
+        "spritePivot":  [
+                            0.5,
+                            0.14901185770750991
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "IceTip.png",
+        "imageSize":  [
+                          1158,
+                          1358
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    327,
+                                    149,
+                                    830,
+                                    1240
+                                ],
+        "connectorWidthPixels":  240,
+        "pixelsPerUnit":  300,
+        "spritePivot":  [
+                            0.5,
+                            0.15058910162002948
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "LavaTip.png",
+        "imageSize":  [
+                          1158,
+                          1358
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    271,
+                                    176,
+                                    889,
+                                    1183
+                                ],
+        "connectorWidthPixels":  419,
+        "pixelsPerUnit":  523.75,
+        "spritePivot":  [
+                            0.50129533678756477,
+                            0.1874079528718704
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "LinkTip.png",
+        "imageSize":  [
+                          1158,
+                          1358
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    172,
+                                    125,
+                                    986,
+                                    1211
+                                ],
+        "connectorWidthPixels":  266,
+        "pixelsPerUnit":  332.5,
+        "spritePivot":  [
+                            0.5,
+                            0.17120765832106033
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "NeedleTip.png",
+        "imageSize":  [
+                          1159,
+                          1358
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    372,
+                                    30,
+                                    786,
+                                    1298
+                                ],
+        "connectorWidthPixels":  288,
+        "pixelsPerUnit":  360,
+        "spritePivot":  [
+                            0.49956859361518552,
+                            0.11818851251840945
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "PlainTip.png",
+        "imageSize":  [
+                          1160,
+                          1356
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    250,
+                                    236,
+                                    909,
+                                    1189
+                                ],
+        "connectorWidthPixels":  409,
+        "pixelsPerUnit":  511.25,
+        "spritePivot":  [
+                            0.50043103448275861,
+                            0.17883480825958697
+                        ],
+        "connectionWidthUnits":  0.8
+    },
+    {
+        "file":  "RicochetTip.png",
+        "imageSize":  [
+                          1247,
+                          1261
+                      ],
+        "opaqueBoundsTopLeft":  [
+                                    280,
+                                    141,
+                                    967,
+                                    1188
+                                ],
+        "connectorWidthPixels":  331,
+        "pixelsPerUnit":  413.75,
+        "spritePivot":  [
+                            0.5,
+                            0.12331482950039652
+                        ],
+        "connectionWidthUnits":  0.8
+    }
+]

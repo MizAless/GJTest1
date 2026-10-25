@@ -51,6 +51,8 @@ MonoBehaviour:
   _player: {fileID: 0}
   _speed: 2
   _onDeadVFX: {fileID: 1021408184984333791, guid: 4ef954fa6651bf74e8e0649319331004, type: 3}
+  _hitVFX: {fileID: 1517306768664494928, guid: 09387c6803a458f4caa7cab12bc9d16d, type: 3}
+  _maxHealth: 30
 --- !u!212 &3550511817217055350
 SpriteRenderer:
   m_ObjectHideFlags: 0
