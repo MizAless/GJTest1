@@ -830,7 +830,17 @@ CustomPolling - (experimental) watches files by manual polling for changes, slow
 
         public static void SetCommonMaterialsShader(ShadersMode newShaderModeValue)
         {
-            var rootToolFolder = AssetPathResolver.GetAssetFolderPathRelativeToScript(ScriptableObject.CreateInstance(typeof(FastScriptReloadWelcomeScreen)), 1);
+            string rootToolFolder;
+            var temporaryWindow = ScriptableObject.CreateInstance<FastScriptReloadWelcomeScreen>();
+            try
+            {
+                rootToolFolder = AssetPathResolver.GetAssetFolderPathRelativeToScript(temporaryWindow, 1);
+            }
+            finally
+            {
+                // This instance only resolves the script path; it must never remain as an editor window.
+                UnityEngine.Object.DestroyImmediate(temporaryWindow);
+            }
             if (rootToolFolder.Contains("/Scripts"))
             {
                 rootToolFolder = rootToolFolder.Replace("/Scripts", ""); //if nested remove that and go higher level
@@ -937,6 +947,20 @@ CustomPolling - (experimental) watches files by manual polling for changes, slow
             );
             
             InitCommon();
+            EditorApplication.delayCall += DestroyUnusedWelcomeWindows;
+        }
+
+        private static void DestroyUnusedWelcomeWindows()
+        {
+            string uninitializedTitle = typeof(FastScriptReloadWelcomeScreen).FullName;
+            foreach (var window in Resources.FindObjectsOfTypeAll<FastScriptReloadWelcomeScreen>())
+            {
+                // Dispose instances left by earlier reloads. The real UI uses the title "Fast Script Reload".
+                if (window != null && window.titleContent.text == uninitializedTitle)
+                {
+                    UnityEngine.Object.DestroyImmediate(window);
+                }
+            }
         }
 
         private static void MigrateObsoleteEnableCustomFileWatcherPreference()
