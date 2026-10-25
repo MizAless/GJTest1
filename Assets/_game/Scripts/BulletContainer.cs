@@ -20,10 +20,19 @@ public class BulletContainer : MonoBehaviour
     public bool Initialized => Cartridges != null;
     public void Init()
     {
-        if (Initialized) return;
-        Cartridges = new AmmoItem[MaxBullets]; Sockets = new AmmoItem[MaxBullets];
-        for (int i = 0; i < MaxBullets; i++) Cartridges[i] = AmmoItem.Ordinary();
-        Cartridges[0] = AmmoGenerator.Generate(false, true);
+        if (Initialized)
+        {
+            return;
+        }
+        Cartridges = new AmmoItem[MaxBullets];
+        Sockets = new AmmoItem[MaxBullets];
+        for (int slot = 0; slot < MaxBullets; slot++)
+        {
+            Cartridges[slot] = AmmoItem.Ordinary();
+        }
+        Cartridges[0] = AmmoGenerator.Generate(module: false, starter: true);
+        int startingModuleSlot = UnityEngine.Random.Range(0, MaxBullets);
+        Sockets[startingModuleSlot] = AmmoGenerator.Generate(module: true, starter: true);
         Rebuild();
     }
     public void Install(int slot, AmmoItem item, bool module)
