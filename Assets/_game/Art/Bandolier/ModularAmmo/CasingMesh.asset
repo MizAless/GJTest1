@@ -6,7 +6,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CasingMesh
+  m_Name: Casing rigid modular part
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 4
     localAABB:
-      m_Center: {x: -0.00067926943, y: -0.49841014, z: 0}
-      m_Extent: {x: 0.37494522, y: 1.0215899, z: 0}
+      m_Center: {x: -0.00067926943, y: -0.5704105, z: 0}
+      m_Extent: {x: 0.37494522, y: 0.9495895, z: 0}
   m_Shapes:
     vertices: []
     shapes: []
@@ -97,7 +97,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 128
-    _typelessdata: da51c0be5c8fc2bf000000000000000000000000000080bf7fdf2a3ebf96b03dda51c0be1bef053f000000000000000000000000000080bf7fdf2a3e3681603fc99fbf3e5c8fc2bf000000000000000000000000000080bf5f97553fbf96b03dc99fbf3e1bef053f000000000000000000000000000080bf5f97553f3681603f
+    _typelessdata: da51c0be5c8fc2bf000000000000000000000000000080bf7fdf2a3ebf96b03dda51c0bec023c23e000000000000000000000000000080bf7fdf2a3ed63c523fc99fbf3e5c8fc2bf000000000000000000000000000080bf5f97553fbf96b03dc99fbf3ec023c23e000000000000000000000000000080bf5f97553fd63c523f
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0

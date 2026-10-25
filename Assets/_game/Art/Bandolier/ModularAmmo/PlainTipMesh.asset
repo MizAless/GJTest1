@@ -6,7 +6,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PlainTipMesh
+  m_Name: PlainTip rigid modular part
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 4
     localAABB:
-      m_Center: {x: -0.0006496012, y: 0.8988991, z: 0.004}
-      m_Extent: {x: 0.43009287, y: 0.6211009, z: 0}
+      m_Center: {x: -0.00037677586, y: 0.6803314, z: 0.004}
+      m_Extent: {x: 0.24945386, y: 0.3602385, z: 0}
   m_Shapes:
     vertices: []
     shapes: []
@@ -97,7 +97,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 128
-    _typelessdata: 478adcbe923b8e3e6f12833b0000000000000000000080bf91ce5b3e1b34f93d478adcbe5c8fc23f6f12833b0000000000000000000080bf91ce5b3e5ca2533ffddfdb3e923b8e3e6f12833b0000000000000000000080bf5c0c493f1b34f93dfddfdb3e5c8fc23f6f12833b0000000000000000000080bf5c0c493f5ca2533f
+    _typelessdata: 9ad37fbe37e3a33e6f12833b0000000000000000000080bf91ce5b3e1b34f93d9ad37fbe6531853f6f12833b0000000000000000000080bf91ce5b3e5ca2533f100e7f3e37e3a33e6f12833b0000000000000000000080bf5c0c493f1b34f93d100e7f3e6531853f6f12833b0000000000000000000080bf5c0c493f5ca2533f
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0

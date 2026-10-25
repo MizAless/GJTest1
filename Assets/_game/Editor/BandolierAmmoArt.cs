@@ -9,6 +9,10 @@ public static class BandolierAmmoArt
     private const string ArtFolder = "Assets/_game/Art/Bandolier/ModularAmmo/";
     private const float ReferenceCartridgeHeight = 3.04f;
     private const float TipDepth = 0.004f;
+    private const float MouthBackDepth = 0.008f;
+    private const float TipSizeMultiplier = 0.58f;
+    private const float MaximumTipWidthRatio = 0.80f;
+    private const float MouthFrontRow = 340f;
 
     private static readonly string[] PreviewTypes =
     {
@@ -46,7 +50,7 @@ public static class BandolierAmmoArt
         var serializedController = new SerializedObject(controller);
         SerializedProperty cartridges = serializedController.FindProperty("_cartridges");
         SerializedProperty shadows = serializedController.FindProperty("_cartridgeShadows");
-        Texture2D casingTexture = ImportTexture("Casing");
+        Texture2D casingTexture = ImportTexture("Casing2");
         Texture2D plainTexture = ImportTexture("PlainTip");
         Rect casingBounds = FindVisibleBounds(casingTexture);
         Rect plainBounds = FindVisibleBounds(plainTexture);
@@ -54,7 +58,15 @@ public static class BandolierAmmoArt
         Vector2 plainTop = ToSpriteUnits(plainTexture, plainBounds.max);
         float assemblyScale = ReferenceCartridgeHeight / (plainTop.y - casingBottom.y);
         float connectionHeight = -ReferenceCartridgeHeight * 0.5f - casingBottom.y * assemblyScale;
-        Mesh casingMesh = CreateMesh("Casing", casingTexture, casingBounds, assemblyScale, connectionHeight, 0);
+        // The front edge must cover the inserted tip; the open back of the mouth stays behind it.
+        float mouthY = casingTexture.height - MouthFrontRow;
+        Rect frontBounds = Rect.MinMaxRect(casingBounds.xMin, casingBounds.yMin, casingBounds.xMax, mouthY);
+        Rect backBounds = Rect.MinMaxRect(casingBounds.xMin, mouthY, casingBounds.xMax, casingBounds.yMax);
+        Mesh casingMesh = CreateMesh("Casing", casingTexture, frontBounds, assemblyScale, connectionHeight, 0);
+        Mesh mouthBackMesh = CreateMesh("MouthBack", casingTexture, backBounds,
+            assemblyScale, connectionHeight, MouthBackDepth);
+        float maximumTipWidth = (frontBounds.width / GetPixelsPerUnit(casingTexture))
+            * assemblyScale * MaximumTipWidthRatio;
         Material casingMaterial = CreateMaterial("Casing", shader, casingTexture, isShadow: false);
         Material casingShadowMaterial = CreateMaterial("Casing", shader, casingTexture, isShadow: true);
 
@@ -62,8 +74,11 @@ public static class BandolierAmmoArt
         {
             string type = PreviewTypes[index];
             Texture2D texture = ImportTexture(type + "Tip");
-            Mesh tipMesh = CreateMesh(type + "Tip", texture, FindVisibleBounds(texture),
-                assemblyScale, connectionHeight, TipDepth);
+            Rect tipBounds = FindVisibleBounds(texture);
+            float sourceTipWidth = tipBounds.width / GetPixelsPerUnit(texture);
+            float tipScale = Mathf.Min(assemblyScale * TipSizeMultiplier, maximumTipWidth / sourceTipWidth);
+            Mesh tipMesh = CreateMesh(type + "Tip", texture, tipBounds,
+                tipScale, connectionHeight, TipDepth);
             Material tipMaterial = CreateMaterial(type + "Tip", shader, texture, isShadow: false);
             Material tipShadowMaterial = CreateMaterial(type + "Tip", shader, texture, isShadow: true);
 
@@ -73,6 +88,8 @@ public static class BandolierAmmoArt
             cartridge.GetComponent<MeshRenderer>().sharedMaterial = casingMaterial;
             shadow.GetComponent<MeshFilter>().sharedMesh = casingMesh;
             shadow.sharedMaterial = casingShadowMaterial;
+            SetPart(cartridge, "Mouth back", mouthBackMesh, casingMaterial);
+            SetPart(shadow.transform, "Mouth back shadow", mouthBackMesh, casingShadowMaterial);
             SetPart(cartridge, "Tip", tipMesh, tipMaterial);
             SetPart(shadow.transform, "Tip shadow", tipMesh, tipShadowMaterial);
         }
@@ -88,6 +105,17 @@ public static class BandolierAmmoArt
         if (importer == null)
         {
             throw new FileNotFoundException("Generated cartridge sprite is missing.", path);
+        }
+
+        if (type == "Casing2")
+        {
+            var reference = (TextureImporter)AssetImporter.GetAtPath(ArtFolder + "Casing.png");
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Custom;
+            settings.spritePivot = reference.spritePivot;
+            settings.spritePixelsPerUnit = reference.spritePixelsPerUnit;
+            importer.SetTextureSettings(settings);
         }
 
         importer.textureType = TextureImporterType.Sprite;
@@ -136,6 +164,12 @@ public static class BandolierAmmoArt
 
         // Crop through UVs; the generated PNG pixels remain unchanged.
         return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    private static float GetPixelsPerUnit(Texture2D texture)
+    {
+        var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture));
+        return importer.spritePixelsPerUnit;
     }
 
     private static Vector2 ToSpriteUnits(Texture2D texture, Vector2 pixel)
@@ -247,9 +281,21 @@ public static class BandolierAmmoArt
             }
             sharedCasing = casing;
             MeshRenderer[] layers = cartridge.GetComponentsInChildren<MeshRenderer>(true);
-            if (layers.Length != 4 || cartridge.Find("Tip") == null)
+            if (layers.Length != 6 || cartridge.Find("Tip") == null)
             {
-                throw new InvalidOperationException("Expected casing, tip and two shadow layers.");
+                throw new InvalidOperationException("Expected front casing, mouth back, tip and three matching shadow layers.");
+            }
+            Mesh tip = cartridge.Find("Tip").GetComponent<MeshFilter>().sharedMesh;
+            Mesh mouthBack = cartridge.Find("Mouth back").GetComponent<MeshFilter>().sharedMesh;
+            float casingWidth = casing.vertices[2].x - casing.vertices[0].x;
+            float tipWidth = tip.vertices[2].x - tip.vertices[0].x;
+            if (tipWidth > casingWidth * MaximumTipWidthRatio + 0.001f)
+            {
+                throw new InvalidOperationException("Tip exceeds the casing mouth width.");
+            }
+            if (casing.vertices[0].z >= tip.vertices[0].z || tip.vertices[0].z >= mouthBack.vertices[0].z)
+            {
+                throw new InvalidOperationException("Tip must sit between the front and back of the mouth.");
             }
             foreach (MeshRenderer layer in layers)
             {
@@ -272,7 +318,7 @@ public static class BandolierAmmoArt
             controller.Scrub(0);
             foreach (MeshRenderer layer in controller.GetComponentsInChildren<MeshRenderer>())
             {
-                if (layer.name == "Tip" || layer.name == "Tip shadow")
+                if (layer.name == "Tip" || layer.name == "Tip shadow" || layer.name.StartsWith("Mouth back"))
                 {
                     if (layer.enabled)
                     {
@@ -302,7 +348,7 @@ public static class BandolierAmmoArt
             UnityEngine.Object.DestroyImmediate(target);
             UnityEngine.Object.DestroyImmediate(capture);
             File.WriteAllText("Artifacts/cartridge-art-validation.txt",
-                "PASS: six modular cartridges, shared casing mesh, six distinct tips, two shadow parts each; folded visibility, scrub and render completed.");
+                "PASS: six fitted modular cartridges, shared open casing, six smaller tips, three shadow parts each; folded visibility, scrub and render completed.");
             EditorApplication.Exit(0);
         }
         catch (Exception exception)

@@ -6,7 +6,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LavaTipMesh
+  m_Name: LavaTip rigid modular part
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -17,8 +17,8 @@ Mesh:
     firstVertex: 0
     vertexCount: 4
     localAABB:
-      m_Center: {x: 0, y: 0.91501725, z: 0.004}
-      m_Extent: {x: 0.3938267, y: 0.6411575, z: 0}
+      m_Center: {x: 0, y: 0.68967986, z: 0.004}
+      m_Extent: {x: 0.22841947, y: 0.37187132, z: 0}
   m_Shapes:
     vertices: []
     shapes: []
@@ -97,7 +97,7 @@ Mesh:
       format: 0
       dimension: 0
     m_DataSize: 128
-    _typelessdata: a7a3c9be5a378c3e6f12833b0000000000000000000080bfa8c16e3e55b2013ea7a3c9bebc30c73f6f12833b0000000000000000000080bfa8c16e3ea3025f3fa7a3c93e5a378c3e6f12833b0000000000000000000080bf5ef9443f55b2013ea7a3c93ebc30c73f6f12833b0000000000000000000080bf5ef9443fa3025f3f
+    _typelessdata: cbe669beceb7a23e6f12833b0000000000000000000080bfa8c16e3e55b2013ecbe669bee9e0873f6f12833b0000000000000000000080bfa8c16e3ea3025f3fcbe6693eceb7a23e6f12833b0000000000000000000080bf5ef9443f55b2013ecbe6693ee9e0873f6f12833b0000000000000000000080bf5ef9443fa3025f3f
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
