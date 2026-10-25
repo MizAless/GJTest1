@@ -13,6 +13,7 @@
 - `Assets/_game/Scenes/Game.unity` — основная сцена.
 - `Assets/_game/Scenes/BandolierPreview.unity` — отдельная сцена раскатывания кожаного патронташа; в основной экран наград не встроена. Play запускает анимацию, пробел повторяет её, кнопки и ползунок позволяют раскрывать, сворачивать и просматривать изгиб.
 - Графика патронташа, сетки, шейдер и материалы: `Assets/_game/Art/Bandolier/`; контроллер: `Scripts/Bandolier/BandolierPreview.cs`; сборка сцены: `Editor/BandolierPreviewAuthoring.cs`. Происхождение и промпты — в README папки графики.
+- Патроны тестовой сцены собраны из общей гильзы и отдельных наконечников `Art/Bandolier/ModularAmmo/`: два видимых меша и две теневые копии на слот. `BandolierAmmoArt.ApplyToScene` обновляет только патроны существующей сцены, сохраняя петли; `BandolierPreview.RefreshCartridgeLayers` обновляет кеш после изменения иерархии. Имитация вращения пока только обсуждается.
 - `Assets/_game/Scripts/` — собственный игровой код; `Assets/_game/Prefabs/` — игровые префабы и VFX; `Assets/_game/Art/` — собственные материалы и текстуры.
 - `Assets/ThirdParty/PrototypeArt/` — сторонняя прототипная графика; сведения о происхождении и лицензиях в её `README.md`.
 - `Packages/manifest.json` — зависимости. В `Packages/com.handzlikchris.fastscriptreload/` подключён локальный пакет Fast Script Reload.
