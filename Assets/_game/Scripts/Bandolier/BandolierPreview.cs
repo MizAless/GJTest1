@@ -42,6 +42,8 @@ public class BandolierPreview : MonoBehaviour
     private float _startTimeline;
     private float _targetTimeline = 1;
     private bool _isPlaying;
+    private MeshRenderer[][] _cartridgeLayers;
+    private MeshRenderer[][] _shadowLayers;
 
     public float Progress => _progress;
     public float Timeline => _timeline;
@@ -66,11 +68,13 @@ public class BandolierPreview : MonoBehaviour
         _cartridgeShadows = cartridgeShadows;
         _slider = slider;
         _status = status;
+        RefreshCartridgeLayers();
         Apply();
     }
 
     private void OnEnable()
     {
+        RefreshCartridgeLayers();
         if (Application.isPlaying && _autoPlay)
         {
             StartReplay(delay: 0.18f);
@@ -365,9 +369,11 @@ public class BandolierPreview : MonoBehaviour
             UpdateCartridgePose(cartridge, index);
             float slotX = GetSlotX(index);
             bool isVisible = _progress * _width >= slotX + _width * 0.5f + CartridgeRevealMargin;
-            MeshRenderer renderer = cartridge.GetComponent<MeshRenderer>();
-            renderer.enabled = isVisible;
-            ApplyLayerProperties(renderer, isRigid: true);
+            foreach (MeshRenderer renderer in _cartridgeLayers[index])
+            {
+                renderer.enabled = isVisible;
+                ApplyLayerProperties(renderer, isRigid: true);
+            }
             UpdateCartridgeShadow(index, isVisible);
         }
     }
@@ -410,14 +416,50 @@ public class BandolierPreview : MonoBehaviour
             return;
         }
 
-        shadow.enabled = isVisible;
         shadow.transform.localPosition = _cartridgeShadowOffset;
         shadow.transform.localRotation = Quaternion.identity;
         shadow.transform.localScale = Vector3.one;
-        ApplyLayerProperties(
-            shadow,
-            isRigid: true,
-            tint: new Color(0, 0, 0, _cartridgeShadowOpacity));
+        foreach (MeshRenderer layer in _shadowLayers[index])
+        {
+            layer.enabled = isVisible;
+            ApplyLayerProperties(
+                layer,
+                isRigid: true,
+                tint: new Color(0, 0, 0, _cartridgeShadowOpacity));
+        }
+    }
+
+    // Cache once when assembling the hierarchy; playback must not allocate arrays each frame.
+    public void RefreshCartridgeLayers()
+    {
+        int count = CartridgeCount;
+        _cartridgeLayers = new MeshRenderer[count][];
+        _shadowLayers = new MeshRenderer[count][];
+        for (int index = 0; index < count; index++)
+        {
+            MeshRenderer shadow = null;
+            if (_cartridgeShadows != null && index < _cartridgeShadows.Length)
+            {
+                shadow = _cartridgeShadows[index];
+            }
+
+            var visibleLayers = new System.Collections.Generic.List<MeshRenderer>();
+            if (_cartridges[index] != null)
+            {
+                foreach (MeshRenderer layer in _cartridges[index].GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    if (shadow == null || !layer.transform.IsChildOf(shadow.transform))
+                    {
+                        visibleLayers.Add(layer);
+                    }
+                }
+            }
+
+            _cartridgeLayers[index] = visibleLayers.ToArray();
+            _shadowLayers[index] = shadow == null
+                ? new MeshRenderer[0]
+                : shadow.GetComponentsInChildren<MeshRenderer>(true);
+        }
     }
 
     private void UpdateControls()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -6,9 +6,9 @@ using UnityEngine;
 
 public static class BandolierAmmoArt
 {
-    private const string ArtFolder = "Assets/_game/Art/Bandolier/Cartridges/";
+    private const string ArtFolder = "Assets/_game/Art/Bandolier/ModularAmmo/";
     private const float ReferenceCartridgeHeight = 3.04f;
-    private const float CasingSampleHeight = 0.35f;
+    private const float TipDepth = 0.004f;
 
     private static readonly string[] PreviewTypes =
     {
@@ -46,28 +46,38 @@ public static class BandolierAmmoArt
         var serializedController = new SerializedObject(controller);
         SerializedProperty cartridges = serializedController.FindProperty("_cartridges");
         SerializedProperty shadows = serializedController.FindProperty("_cartridgeShadows");
-        Texture2D referenceTexture = ImportTexture("Plain");
-        Rect referenceBounds = FindVisibleBounds(referenceTexture);
-        float referenceUnitsPerPixel = ReferenceCartridgeHeight / referenceBounds.height;
-        float casingWidth = FindCasingWidth(referenceTexture, referenceBounds) * referenceUnitsPerPixel;
+        Texture2D casingTexture = ImportTexture("Casing");
+        Texture2D plainTexture = ImportTexture("PlainTip");
+        Rect casingBounds = FindVisibleBounds(casingTexture);
+        Rect plainBounds = FindVisibleBounds(plainTexture);
+        Vector2 casingBottom = ToSpriteUnits(casingTexture, casingBounds.min);
+        Vector2 plainTop = ToSpriteUnits(plainTexture, plainBounds.max);
+        float assemblyScale = ReferenceCartridgeHeight / (plainTop.y - casingBottom.y);
+        float connectionHeight = -ReferenceCartridgeHeight * 0.5f - casingBottom.y * assemblyScale;
+        Mesh casingMesh = CreateMesh("Casing", casingTexture, casingBounds, assemblyScale, connectionHeight, 0);
+        Material casingMaterial = CreateMaterial("Casing", shader, casingTexture, isShadow: false);
+        Material casingShadowMaterial = CreateMaterial("Casing", shader, casingTexture, isShadow: true);
 
         for (int index = 0; index < PreviewTypes.Length; index++)
         {
             string type = PreviewTypes[index];
-            Texture2D texture = ImportTexture(type);
-            Rect visibleBounds = FindVisibleBounds(texture);
-            Mesh mesh = CreateMesh(type, texture, visibleBounds, casingWidth);
-            Material material = CreateMaterial(type, shader, texture, isShadow: false);
-            Material shadowMaterial = CreateMaterial(type, shader, texture, isShadow: true);
+            Texture2D texture = ImportTexture(type + "Tip");
+            Mesh tipMesh = CreateMesh(type + "Tip", texture, FindVisibleBounds(texture),
+                assemblyScale, connectionHeight, TipDepth);
+            Material tipMaterial = CreateMaterial(type + "Tip", shader, texture, isShadow: false);
+            Material tipShadowMaterial = CreateMaterial(type + "Tip", shader, texture, isShadow: true);
 
             var cartridge = (Transform)cartridges.GetArrayElementAtIndex(index).objectReferenceValue;
             var shadow = (MeshRenderer)shadows.GetArrayElementAtIndex(index).objectReferenceValue;
-            cartridge.GetComponent<MeshFilter>().sharedMesh = mesh;
-            cartridge.GetComponent<MeshRenderer>().sharedMaterial = material;
-            shadow.GetComponent<MeshFilter>().sharedMesh = mesh;
-            shadow.sharedMaterial = shadowMaterial;
+            cartridge.GetComponent<MeshFilter>().sharedMesh = casingMesh;
+            cartridge.GetComponent<MeshRenderer>().sharedMaterial = casingMaterial;
+            shadow.GetComponent<MeshFilter>().sharedMesh = casingMesh;
+            shadow.sharedMaterial = casingShadowMaterial;
+            SetPart(cartridge, "Tip", tipMesh, tipMaterial);
+            SetPart(shadow.transform, "Tip shadow", tipMesh, tipShadowMaterial);
         }
 
+        controller.RefreshCartridgeLayers();
         controller.Scrub(1);
     }
 
@@ -128,33 +138,34 @@ public static class BandolierAmmoArt
         return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
-    private static int FindCasingWidth(Texture2D texture, Rect bounds)
+    private static Vector2 ToSpriteUnits(Texture2D texture, Vector2 pixel)
     {
-        // Sample the straight lower casing, away from the tip, markings and base rim.
-        int sampleY = Mathf.RoundToInt(bounds.yMin + bounds.height * CasingSampleHeight);
-        int minX = texture.width;
-        int maxX = -1;
-        for (int x = 0; x < texture.width; x++)
-        {
-            // Exclude the faint halo that some generated sprites have around the metal.
-            if (texture.GetPixel(x, sampleY).a < 0.8f)
-            {
-                continue;
-            }
-
-            minX = Mathf.Min(minX, x);
-            maxX = Mathf.Max(maxX, x);
-        }
-
-        if (maxX < minX)
-        {
-            throw new InvalidOperationException(texture.name + " has no opaque casing at the sample height.");
-        }
-
-        return maxX - minX + 1;
+        var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture));
+        Vector2 pivotPixels = Vector2.Scale(importer.spritePivot, new Vector2(texture.width, texture.height));
+        return (pixel - pivotPixels) / importer.spritePixelsPerUnit;
     }
 
-    private static Mesh CreateMesh(string type, Texture2D texture, Rect bounds, float casingWidth)
+    private static void SetPart(Transform parent, string name, Mesh mesh, Material material)
+    {
+        Transform part = parent.Find(name);
+        if (part == null)
+        {
+            part = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer)).transform;
+            part.SetParent(parent, false);
+        }
+
+        part.localPosition = Vector3.zero;
+        part.localRotation = Quaternion.identity;
+        part.localScale = Vector3.one;
+        part.GetComponent<MeshFilter>().sharedMesh = mesh;
+        MeshRenderer renderer = part.GetComponent<MeshRenderer>();
+        renderer.sharedMaterial = material;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = false;
+    }
+
+    private static Mesh CreateMesh(string type, Texture2D texture, Rect bounds,
+        float scale, float connectionHeight, float depth)
     {
         string path = ArtFolder + type + "Mesh.asset";
         Mesh mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
@@ -164,24 +175,21 @@ public static class BandolierAmmoArt
             mesh = new Mesh();
         }
 
-        float unitsPerPixel = casingWidth / FindCasingWidth(texture, bounds);
-        float width = bounds.width * unitsPerPixel;
-        float height = bounds.height * unitsPerPixel;
-        float halfWidth = width * 0.5f;
-        float bottom = -ReferenceCartridgeHeight * 0.5f;
-        float top = bottom + height;
-        Rect uv = new Rect(
-            bounds.x / texture.width, bounds.y / texture.height,
+        Vector2 bottomLeft = ToSpriteUnits(texture, bounds.min) * scale;
+        Vector2 topRight = ToSpriteUnits(texture, bounds.max) * scale;
+        bottomLeft.y += connectionHeight;
+        topRight.y += connectionHeight;
+        Rect uv = new Rect(bounds.x / texture.width, bounds.y / texture.height,
             bounds.width / texture.width, bounds.height / texture.height);
 
         mesh.Clear();
-        mesh.name = type + " rigid cartridge";
+        mesh.name = type + " rigid modular part";
         mesh.vertices = new[]
         {
-            new Vector3(-halfWidth, bottom, 0),
-            new Vector3(-halfWidth, top, 0),
-            new Vector3(halfWidth, bottom, 0),
-            new Vector3(halfWidth, top, 0)
+            new Vector3(bottomLeft.x, bottomLeft.y, depth),
+            new Vector3(bottomLeft.x, topRight.y, depth),
+            new Vector3(topRight.x, bottomLeft.y, depth),
+            new Vector3(topRight.x, topRight.y, depth)
         };
         mesh.uv = new[]
         {
@@ -191,7 +199,6 @@ public static class BandolierAmmoArt
         mesh.triangles = new[] { 0, 1, 2, 1, 3, 2 };
         mesh.RecalculateNormals();
         mesh.bounds = new Bounds(Vector3.zero, new Vector3(17, 6, 6));
-
         if (isNew)
         {
             AssetDatabase.CreateAsset(mesh, path);
@@ -225,6 +232,35 @@ public static class BandolierAmmoArt
         return material;
     }
 
+    private static void ValidateAssembly(BandolierPreview controller)
+    {
+        var serialized = new SerializedObject(controller);
+        SerializedProperty cartridges = serialized.FindProperty("_cartridges");
+        Mesh sharedCasing = null;
+        for (int index = 0; index < cartridges.arraySize; index++)
+        {
+            var cartridge = (Transform)cartridges.GetArrayElementAtIndex(index).objectReferenceValue;
+            Mesh casing = cartridge.GetComponent<MeshFilter>().sharedMesh;
+            if (sharedCasing != null && casing != sharedCasing)
+            {
+                throw new InvalidOperationException("All cartridges must share the same casing mesh.");
+            }
+            sharedCasing = casing;
+            MeshRenderer[] layers = cartridge.GetComponentsInChildren<MeshRenderer>(true);
+            if (layers.Length != 4 || cartridge.Find("Tip") == null)
+            {
+                throw new InvalidOperationException("Expected casing, tip and two shadow layers.");
+            }
+            foreach (MeshRenderer layer in layers)
+            {
+                if (layer.GetComponent<MeshFilter>().sharedMesh.vertexCount != 4)
+                {
+                    throw new InvalidOperationException("Each rigid part must be a quad.");
+                }
+            }
+        }
+    }
+
     // Runs in the isolated validation project; does not rebuild the user's scene.
     public static void ValidateInBatch()
     {
@@ -232,6 +268,18 @@ public static class BandolierAmmoArt
         {
             ApplyToScene();
             BandolierPreview controller = UnityEngine.Object.FindAnyObjectByType<BandolierPreview>();
+            ValidateAssembly(controller);
+            controller.Scrub(0);
+            foreach (MeshRenderer layer in controller.GetComponentsInChildren<MeshRenderer>())
+            {
+                if (layer.name == "Tip" || layer.name == "Tip shadow")
+                {
+                    if (layer.enabled)
+                    {
+                        throw new InvalidOperationException("Folded cartridge part is visible.");
+                    }
+                }
+            }
             controller.Scrub(0.25f);
             controller.Scrub(0.65f);
             controller.Scrub(1);
@@ -254,7 +302,7 @@ public static class BandolierAmmoArt
             UnityEngine.Object.DestroyImmediate(target);
             UnityEngine.Object.DestroyImmediate(capture);
             File.WriteAllText("Artifacts/cartridge-art-validation.txt",
-                "PASS: six distinct cartridge textures and matching shadow meshes assigned; scene saved; scrub and render completed.");
+                "PASS: six modular cartridges, shared casing mesh, six distinct tips, two shadow parts each; folded visibility, scrub and render completed.");
             EditorApplication.Exit(0);
         }
         catch (Exception exception)
