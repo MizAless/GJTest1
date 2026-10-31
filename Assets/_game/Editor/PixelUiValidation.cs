@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public static class PixelUiValidation
 {
@@ -13,7 +14,8 @@ public static class PixelUiValidation
     private static float _phaseStarted;
     private static Text _sample;
     private static Vector3[] _firstVertices;
-    private static GameObject _newUpgradePanel;
+    private static BandolierUpgradeScreen _screen;
+    private static string _artifacts;
     private static bool _oldOptionsEnabled;
     private static EnterPlayModeOptions _oldOptions;
 
@@ -35,6 +37,7 @@ public static class PixelUiValidation
         _oldOptions = EditorSettings.enterPlayModeOptions;
         EditorSettings.enterPlayModeOptionsEnabled = true;
         EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload;
+        _artifacts = ".utmp/Artifacts/pixel-ui-integrated-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
         _started = EditorApplication.timeSinceStartup;
         EditorApplication.update += Tick;
         EditorApplication.isPlaying = true;
@@ -76,22 +79,9 @@ public static class PixelUiValidation
                     return;
                 }
                 Time.timeScale = 0;
-                Canvas canvas = GameObject.Find("Run interface").GetComponent<Canvas>();
-                _newUpgradePanel = new GameObject("Bandolier upgrades", typeof(RectTransform));
-                _newUpgradePanel.transform.SetParent(canvas.transform, false);
-                var rect = (RectTransform)_newUpgradePanel.transform;
-                rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-                rect.sizeDelta = new Vector2(800, 60);
-                rect.anchoredPosition = new Vector2(0, -280);
-                _sample = new GameObject("Wave color sample", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
-                _sample.transform.SetParent(rect, false);
-                _sample.rectTransform.sizeDelta = rect.sizeDelta;
-                _sample.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                _sample.fontSize = 32;
-                _sample.supportRichText = true;
-                _sample.text = "ЖЁЛТЫЙ <color=#ff6600>ОГОНЬ +25%</color> · НОВЫЙ ПАТРОН";
-                _sample.alignment = TextAnchor.MiddleCenter;
-                _sample.color = new Color(1, 0.85f, 0.5f);
+                _screen = RunUI.Instance.UpgradeScreen;
+                Require(_screen.IsOpen && !run.ChoosingModule, "Expected the real bandolier bullet upgrade stage");
+                _sample = GameObject.Find("Upgrade title").GetComponent<Text>();
                 _phaseStarted = Time.unscaledTime;
                 _phase = 2;
                 return;
@@ -102,7 +92,7 @@ public static class PixelUiValidation
                 Require(_sample.GetComponent<WavyUpgradeText>() != null, "New upgrade panel did not get text wave");
                 Text[] labels = GameObject.Find("Run interface").GetComponentsInChildren<Text>(true);
                 Require(labels.All(label => label.font == PixelUiTheme.Font), "Default font remains in game UI");
-                Transform reward = GameObject.Find("Reward screen").transform;
+                Transform reward = GameObject.Find("Bandolier upgrades").transform;
                 Require(reward.GetComponentsInChildren<Text>().All(label => label.GetComponent<WavyUpgradeText>() != null),
                     "Current upgrade text did not receive the wave effect");
                 ValidateColorPreservation();
@@ -121,7 +111,46 @@ public static class PixelUiValidation
                 Require(vertices.Length == _firstVertices.Length && vertices.Where((vertex, index) =>
                     Mathf.Abs(vertex.y - _firstVertices[index].y) > 0.05f).Any(), "Text wave does not animate while paused");
                 Capture("pixel-ui-wave-b.png");
-                Debug.Log("PIXEL_UI_VALIDATION_PASSED: Russian glyphs, colors, paused glyph wave, late-created upgrade panel, left-anchored HP, first wave 3x3");
+                int moduleSlot = Array.FindIndex(run.Drum.Sockets, item => item != null);
+                GameObject.Find("Upgrade slot " + (moduleSlot + 1)).GetComponent<UpgradeSlotHover>()
+                    .OnPointerEnter(new PointerEventData(EventSystem.current) { position = Input.mousePosition });
+                _phaseStarted = Time.unscaledTime;
+                _phase = 4;
+                return;
+            }
+            if (_phase == 4 && Time.unscaledTime - _phaseStarted > 0.3f)
+            {
+                Require(_screen.Tooltips.HasModule, "Expected two slot tooltips");
+                TooltipView[] tooltips = GameObject.Find("Run interface").GetComponentsInChildren<TooltipView>();
+                Require(tooltips.Length >= 2 && tooltips.All(view => view.GetComponentsInChildren<Text>(true)
+                    .All(label => label.font == PixelUiTheme.Font)), "Tooltip text is not using the pixel font");
+                Capture("pixel-ui-stacked-tooltips.png");
+                _screen.Tooltips.HideAll();
+                _screen.Selection.SelectOffer(0);
+                _screen.Selection.SelectSlot(0);
+                _phaseStarted = Time.unscaledTime;
+                _phase = 5;
+                return;
+            }
+            if (_phase == 5 && Time.unscaledTime - _phaseStarted > 0.2f)
+            {
+                Text confirmation = GameObject.Find("Replacement details").GetComponent<Text>();
+                Require(confirmation.font == PixelUiTheme.Font && confirmation.GetComponent<WavyUpgradeText>() != null,
+                    "Confirmation text does not use pixel font and glyph wave");
+                Capture("pixel-ui-confirmation.png");
+                _screen.Selection.Confirm();
+                Require(run.AwaitingReward && run.ChoosingModule && _screen.IsOpen, "Module stage did not open");
+                _phaseStarted = Time.unscaledTime;
+                _phase = 6;
+                return;
+            }
+            if (_phase == 6 && Time.unscaledTime - _phaseStarted > 0.3f)
+            {
+                Text[] labels = GameObject.Find("Bandolier upgrades").GetComponentsInChildren<Text>(true);
+                Require(labels.All(label => label.font == PixelUiTheme.Font && label.GetComponent<WavyUpgradeText>() != null),
+                    "Module upgrade text did not retain pixel font and glyph wave");
+                Capture("pixel-ui-modules.png");
+                Debug.Log("PIXEL_UI_VALIDATION_PASSED: real bandolier bullet/module upgrades, confirmation, stacked tooltips, paused glyph wave, colors, Cyrillic and left-anchored HP");
                 EditorApplication.update -= Tick;
                 EditorApplication.playModeStateChanged += ExitAfterPlay;
                 EditorApplication.isPlaying = false;
@@ -189,13 +218,17 @@ public static class PixelUiValidation
         canvas.planeDistance = 1;
         camera.targetTexture = target;
         Canvas.ForceUpdateCanvases();
+        _screen.Presentation.RenderNow(1280, 720);
+        _screen.RefreshLayout();
+        _screen.Tooltips.RefreshPosition();
+        Canvas.ForceUpdateCanvases();
         camera.Render();
         RenderTexture.active = target;
         var capture = new Texture2D(1280, 720, TextureFormat.RGB24, false);
         capture.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0);
         capture.Apply();
-        Directory.CreateDirectory(".utmp/Artifacts");
-        File.WriteAllBytes(".utmp/Artifacts/" + name, capture.EncodeToPNG());
+        Directory.CreateDirectory(_artifacts);
+        File.WriteAllBytes(_artifacts + "/" + name, capture.EncodeToPNG());
         RenderTexture.active = null;
         camera.targetTexture = null;
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;

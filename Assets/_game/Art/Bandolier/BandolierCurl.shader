@@ -15,6 +15,8 @@ Shader "Game/Bandolier Curl"
         _Shadow ("Projected contact shadow", Float) = 0
         _Gesture ("Throw timeline", Range(0,1)) = 1
         _ImpactStrength ("Leather impact", Float) = 1
+        _SpinPhase ("Inspection rotation phase", Float) = 0
+        _SpinAmount ("Inspection surface movement", Range(0,1)) = 0
         [Enum(Off,0,On,1)] _ZWrite ("Write depth", Float) = 1
     }
     SubShader
@@ -33,6 +35,7 @@ Shader "Game/Bandolier Curl"
             sampler2D _MainTex;
             fixed4 _Color, _BackColor;
             float _Progress, _Width, _Radius, _Thickness, _AnchorX, _Rigid, _BendAngle, _Shadow, _Gesture, _ImpactStrength;
+            float _SpinPhase, _SpinAmount;
             struct appdata { float4 vertex:POSITION; float2 uv:TEXCOORD0; };
             struct v2f { float4 vertex:SV_POSITION; float2 uv:TEXCOORD0; float angle:TEXCOORD1; };
             float3 slap(float x)
@@ -83,6 +86,21 @@ Shader "Game/Bandolier Curl"
             {
                 fixed4 c=tex2D(_MainTex,i.uv)*_Color;
                 clip(c.a-.09);
+                if (_Rigid > .5 && _SpinAmount > .001)
+                {
+                    // Move surface marks and a cylindrical highlight while preserving the sprite silhouette.
+                    float angle=asin(clamp((i.uv.x-.5)*2.4,-1,1));
+                    float surface=angle+_SpinPhase*6.28318;
+                    float2 sampleUV=i.uv+float2(sin(_SpinPhase*6.28318)*.035,0);
+                    fixed4 rolling=tex2D(_MainTex,sampleUV);
+                    c.rgb=lerp(c.rgb,rolling.rgb,_SpinAmount*.35*rolling.a);
+                    float band=floor((surface+i.uv.y*.4)*29);
+                    float random=frac(sin(band*127.1+floor(i.uv.y*95)*311.7)*43758.5453);
+                    float scratch=step(.94,random)*step(.86,frac((surface+i.uv.y*.4)*29));
+                    float highlight=pow(saturate(cos(surface)),18);
+                    c.rgb*=lerp(1,.72+.32*saturate(cos(surface)),_SpinAmount);
+                    c.rgb+=_SpinAmount*(highlight*.24+scratch*.16);
+                }
                 if (_Shadow > .5) return fixed4(.02,.01,.005,c.a*.38);
                 float light=.32+.68*sqrt(abs(cos(i.angle)));
                 light+=.12*pow(abs(cos(i.angle+.45)),18);
