@@ -10,7 +10,7 @@ public class GameScript
         switch (number)
         {
             case 1:
-                return CreateWave(3, 6);
+                return CreateWave(3, 3);
             case 2:
                 groups = CreateWave(4, 5);
                 groups[2] = CreateGroup(5, mediumCount: 2);
