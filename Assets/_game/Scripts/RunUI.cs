@@ -33,7 +33,13 @@ public class RunUI : MonoBehaviour
         var scaler=go.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize; scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
         var top=PanelRect(_root,"Round status",20,16,1240,60,Panel);
         _round=Label(top,"Round",16,6,800,26,20); _note=Label(top,"Feedback",16,32,1200,22,14);
-        for(int i=0;i<6;i++) { int index=i; var b=MakeButton(_root,"Socket "+(i+1),24+i*206,618,196,84,()=>Inspect(index)); _hud.Add(b); }
+        for (int i = 0; i < 6; i++)
+        {
+            int index = i;
+            Button button = MakeButton(_root, "Socket " + (i + 1), 24 + i * 206, 618, 196, 84, () => Inspect(index));
+            button.gameObject.AddComponent<TooltipTrigger>().Bind(() => SlotTooltip(index));
+            _hud.Add(button);
+        }
         _detail=PanelRect(_root,"Cartridge inspection",20,88,370,220,Panel).gameObject;
         _detailText=Label(_detail.transform,"Details",12,10,346,200,15); _detail.SetActive(false);
         BuildReward();
@@ -69,12 +75,14 @@ public class RunUI : MonoBehaviour
         {
             int index=i; var b=MakeButton(_modal,"Reward "+(i+1),45+i*400,135,385,270,()=>{_chosen=index;RefreshRewards();});
             _cards.Add(b); var t=b.GetComponentInChildren<Text>();t.alignment=TextAnchor.UpperLeft;t.fontSize=17;t.supportRichText=true;
+            b.gameObject.AddComponent<TooltipTrigger>().Bind(() => AmmoTooltipContent.Create(_run.Offers[index]));
         }
         _comparison=Label(_modal,"Slot comparison",45,423,1190,55,15);
         for(int i=0;i<6;i++)
         {
             int index=i; var b=MakeButton(_modal,"Install in slot "+(i+1),45+i*200,487,185,88,()=>{_slot=index;RefreshRewards();});
             b.GetComponentInChildren<Text>().fontSize=12;_rewardSlots.Add(b);
+            b.gameObject.AddComponent<TooltipTrigger>().Bind(() => SlotTooltip(index));
         }
         MakeButton(_modal,"Move cartridge left",45,596,230,45,()=>{_run.Drum.SwapCartridges(_slot,_run.Drum.Next(_slot-1));_slot=_run.Drum.Next(_slot-1);RefreshRewards();}).GetComponentInChildren<Text>().text="← Переместить патрон";
         MakeButton(_modal,"Move cartridge right",290,596,230,45,()=>{_run.Drum.SwapCartridges(_slot,_run.Drum.Next(_slot+1));_slot=_run.Drum.Next(_slot+1);RefreshRewards();}).GetComponentInChildren<Text>().text="Переместить патрон →";
@@ -84,9 +92,20 @@ public class RunUI : MonoBehaviour
     }
     public void ShowReward()
     {
+        TooltipPresenter.For(_canvas).HideAll();
         _chosen=0;_slot=0;_detail.SetActive(false);_modal.gameObject.SetActive(true);RefreshRewards();
     }
-    public void HideReward() { _modal.gameObject.SetActive(false);Refresh(); }
+    public void HideReward()
+    {
+        TooltipPresenter.For(_canvas).HideAll();
+        _modal.gameObject.SetActive(false);
+        Refresh();
+    }
+
+    private TooltipContent SlotTooltip(int index)
+    {
+        return AmmoTooltipContent.Create(_run.Drum.Cartridges[index], _run.Drum.Sockets[index]);
+    }
     void RefreshRewards()
     {
         bool module=_run.ChoosingModule;
