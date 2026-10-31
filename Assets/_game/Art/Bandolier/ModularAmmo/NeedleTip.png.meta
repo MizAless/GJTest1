@@ -1,4 +1,4 @@
-﻿fileFormatVersion: 2
+fileFormatVersion: 2
 guid: b433c94e97ef4221ba866d8b9f5168f3
 TextureImporter:
   internalIDToNameTable: []
@@ -45,10 +45,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 9
-  spritePivot: {x: 0.49956859, y: 0.11818851}
-  spritePixelsToUnits: 360
+  spritePivot: {x: 0.49956864, y: -0.23016787}
+  spritePixelsToUnits: 1003.5198
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -122,9 +122,8 @@ TextureImporter:
     nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  userData: 
+  userData: '
+
+    CartridgeVisualWidthScale=1.53920138'
   assetBundleName: 
   assetBundleVariant: 
-
-
-

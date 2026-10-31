@@ -1,23 +1,29 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public static class BandolierAmmoArt
 {
-    private const string ArtFolder = "Assets/_game/Art/Bandolier/ModularAmmo/";
-    private const float ReferenceCartridgeHeight = 3.04f;
-    private const float TipDepth = 0.004f;
-    private const float MouthBackDepth = 0.008f;
-    private const float TipSizeMultiplier = 0.58f;
-    private const float MaximumTipWidthRatio = 0.80f;
-    private const float MouthFrontRow = 340f;
+    public const string ArtFolder = "Assets/_game/Art/Bandolier/ModularAmmo/";
+    public const string PrefabPath = "Assets/_game/Prefabs/CartridgeVisual.prefab";
+    private const string WidthKey = "CartridgeVisualWidthScale=";
+    private static readonly string[] PreviewTypes = { "Plain", "Needle", "Lava", "Ice", "Ricochet", "Fan" };
 
-    private static readonly string[] PreviewTypes =
+    private sealed class Calibration
     {
-        "Plain", "Needle", "Lava", "Ice", "Ricochet", "Fan"
-    };
+        public string TexturePath;
+        public Vector2 PixelsToLocal;
+        public Vector2 Offset;
+        public Vector2[] PixelSamples;
+        public Vector3[] ExpectedPositions;
+        public int Slot;
+    }
 
     [MenuItem("Tools/Prototype/Apply Cartridge Art To Bandolier Preview")]
     public static void ApplyToScene()
@@ -26,10 +32,8 @@ public static class BandolierAmmoArt
         {
             return;
         }
-
         var scene = EditorSceneManager.OpenScene(BandolierPreviewAuthoring.ScenePath);
-        BandolierPreview controller = UnityEngine.Object.FindAnyObjectByType<BandolierPreview>();
-        ApplyToController(controller);
+        ApplyToController(UnityEngine.Object.FindAnyObjectByType<BandolierPreview>());
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
     }
@@ -40,322 +44,225 @@ public static class BandolierAmmoArt
         {
             throw new InvalidOperationException("Bandolier preview controller is missing.");
         }
+        var settings = new SerializedObject(controller);
+        SerializedProperty cartridges = settings.FindProperty("_cartridges");
+        SerializedProperty shadows = settings.FindProperty("_cartridgeShadows");
+        var calibrations = new List<Calibration>();
 
+        // Read every old mesh before reimporting any sprite. This captures the user's actual
+        // local transforms, including the needle's non-uniform width, without legacy scale constants.
+        for (int slot = 0; slot < cartridges.arraySize; slot++)
+        {
+            var root = (Transform)cartridges.GetArrayElementAtIndex(slot).objectReferenceValue;
+            if (root.GetComponent<CartridgeVisual>() != null || root.Find("Tip") == null)
+            {
+                continue;
+            }
+            if (slot == 0)
+            {
+                calibrations.Add(Capture(root, root.GetComponent<MeshFilter>(), ArtFolder + "Casing2.png", -1));
+            }
+            calibrations.Add(Capture(root, root.Find("Tip").GetComponent<MeshFilter>(),
+                ArtFolder + PreviewTypes[slot] + "Tip.png", slot));
+        }
+        foreach (Calibration calibration in calibrations)
+        {
+            ApplyCalibration(calibration);
+        }
+        EnsurePrefab();
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+        for (int slot = 0; slot < cartridges.arraySize; slot++)
+        {
+            var oldRoot = (Transform)cartridges.GetArrayElementAtIndex(slot).objectReferenceValue;
+            CartridgeVisual visual = oldRoot.GetComponent<CartridgeVisual>();
+            if (visual == null)
+            {
+                GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, oldRoot.parent);
+                Transform replacement = instance.transform;
+                replacement.name = oldRoot.name;
+                replacement.SetSiblingIndex(oldRoot.GetSiblingIndex());
+                replacement.localPosition = oldRoot.localPosition;
+                replacement.localRotation = oldRoot.localRotation;
+                replacement.localScale = oldRoot.localScale;
+                visual = instance.GetComponent<CartridgeVisual>();
+                Sprite tip = LoadSprite(PreviewTypes[slot] + "Tip");
+                visual.SetSprites(LoadSprite("Casing2"), tip, GetSuggestedWidthScale(tip));
+                cartridges.GetArrayElementAtIndex(slot).objectReferenceValue = replacement;
+                shadows.GetArrayElementAtIndex(slot).objectReferenceValue = visual.CasingShadow;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(visual);
+                UnityEngine.Object.DestroyImmediate(oldRoot.gameObject);
+            }
+            else
+            {
+                visual.Rebuild();
+            }
+        }
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        controller.RefreshCartridgeLayers();
+        controller.Scrub(1);
+        ValidatePreservedFit(controller, calibrations);
+        EditorUtility.SetDirty(controller);
+    }
+
+    private static Calibration Capture(Transform root, MeshFilter filter, string texturePath, int slot)
+    {
+        Mesh mesh = filter.sharedMesh;
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+        Vector3[] vertices = mesh.vertices;
+        Vector2[] uv = mesh.uv;
+        var positions = new Vector3[vertices.Length];
+        var pixels = new Vector2[vertices.Length];
+        for (int index = 0; index < vertices.Length; index++)
+        {
+            positions[index] = root.InverseTransformPoint(filter.transform.TransformPoint(vertices[index]));
+            pixels[index] = Vector2.Scale(uv[index], new Vector2(texture.width, texture.height));
+        }
+        Vector2 scale = new Vector2(
+            (positions[2].x - positions[0].x) / (pixels[2].x - pixels[0].x),
+            (positions[1].y - positions[0].y) / (pixels[1].y - pixels[0].y));
+        if (scale.x <= 0 || scale.y <= 0)
+        {
+            throw new InvalidOperationException("Expected axis-aligned positive manual scaling: " + texturePath);
+        }
+        return new Calibration
+        {
+            TexturePath = texturePath,
+            PixelsToLocal = scale,
+            Offset = new Vector2(positions[0].x - pixels[0].x * scale.x,
+                positions[0].y - pixels[0].y * scale.y),
+            PixelSamples = pixels,
+            ExpectedPositions = positions,
+            Slot = slot
+        };
+    }
+
+    private static void ApplyCalibration(Calibration calibration)
+    {
+        var importer = (TextureImporter)AssetImporter.GetAtPath(calibration.TexturePath);
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(calibration.TexturePath);
+        Vector2 pixelPivot = new Vector2(-calibration.Offset.x / calibration.PixelsToLocal.x,
+            -calibration.Offset.y / calibration.PixelsToLocal.y);
+        var settings = new TextureImporterSettings();
+        importer.ReadTextureSettings(settings);
+        settings.spriteAlignment = (int)SpriteAlignment.Custom;
+        settings.spritePivot = new Vector2(pixelPivot.x / texture.width, pixelPivot.y / texture.height);
+        settings.spritePixelsPerUnit = 1 / calibration.PixelsToLocal.y;
+        settings.spriteMeshType = SpriteMeshType.FullRect;
+        importer.SetTextureSettings(settings);
+        float widthScale = calibration.PixelsToLocal.x / calibration.PixelsToLocal.y;
+        string[] userLines = importer.userData.Split('\n');
+        importer.userData = string.Join("\n", userLines.Where(line => !line.StartsWith(WidthKey) && line.Length > 0))
+            + "\n" + WidthKey + widthScale.ToString("R", CultureInfo.InvariantCulture);
+        importer.SaveAndReimport();
+    }
+
+    public static float GetSuggestedWidthScale(Sprite sprite)
+    {
+        if (sprite == null)
+        {
+            return 1;
+        }
+        var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite));
+        foreach (string line in importer.userData.Split('\n'))
+        {
+            if (line.StartsWith(WidthKey))
+            {
+                return float.Parse(line.Substring(WidthKey.Length), CultureInfo.InvariantCulture);
+            }
+        }
+        return 1;
+    }
+
+    private static void ValidatePreservedFit(BandolierPreview controller, List<Calibration> calibrations)
+    {
+        var settings = new SerializedObject(controller);
+        var cartridges = settings.FindProperty("_cartridges");
+        float maximumError = 0;
+        foreach (Calibration calibration in calibrations)
+        {
+            int slot = Mathf.Max(0, calibration.Slot);
+            var root = (Transform)cartridges.GetArrayElementAtIndex(slot).objectReferenceValue;
+            CartridgeVisual visual = root.GetComponent<CartridgeVisual>();
+            Sprite sprite = calibration.Slot < 0 ? visual.CasingSprite : visual.TipSprite;
+            float width = calibration.Slot < 0 ? 1 : visual.TipWidthScale;
+            for (int index = 0; index < calibration.PixelSamples.Length; index++)
+            {
+                Vector2 position = (calibration.PixelSamples[index] - sprite.pivot) / sprite.pixelsPerUnit;
+                position.x *= width;
+                Vector2 expected = calibration.ExpectedPositions[index];
+                maximumError = Mathf.Max(maximumError, Vector2.Distance(position, expected));
+            }
+        }
+        if (maximumError > 0.0001f)
+        {
+            throw new InvalidOperationException("Manual fitting changed by " + maximumError + " world units.");
+        }
+        Debug.Log("CARTRIDGE_MANUAL_FIT_PRESERVED: maximum error " + maximumError);
+    }
+
+    public static Sprite LoadSprite(string name)
+    {
+        return AssetDatabase.LoadAssetAtPath<Sprite>(ArtFolder + name + ".png");
+    }
+
+    private static void EnsurePrefab()
+    {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) != null)
+        {
+            return;
+        }
         Shader shader = Shader.Find("Game/Bandolier Curl");
         if (shader == null || ShaderUtil.ShaderHasError(shader))
         {
-            throw new InvalidOperationException("Bandolier shader is missing or has compilation errors.");
+            throw new InvalidOperationException("Bandolier shader is missing or invalid.");
         }
-
-        var serializedController = new SerializedObject(controller);
-        SerializedProperty cartridges = serializedController.FindProperty("_cartridges");
-        SerializedProperty shadows = serializedController.FindProperty("_cartridgeShadows");
-        Texture2D casingTexture = ImportTexture("Casing2");
-        Texture2D plainTexture = ImportTexture("PlainTip");
-        Rect casingBounds = FindVisibleBounds(casingTexture);
-        Rect plainBounds = FindVisibleBounds(plainTexture);
-        Vector2 casingBottom = ToSpriteUnits(casingTexture, casingBounds.min);
-        Vector2 plainTop = ToSpriteUnits(plainTexture, plainBounds.max);
-        float assemblyScale = ReferenceCartridgeHeight / (plainTop.y - casingBottom.y);
-        float connectionHeight = -ReferenceCartridgeHeight * 0.5f - casingBottom.y * assemblyScale;
-        // The front edge must cover the inserted tip; the open back of the mouth stays behind it.
-        float mouthY = casingTexture.height - MouthFrontRow;
-        Rect frontBounds = Rect.MinMaxRect(casingBounds.xMin, casingBounds.yMin, casingBounds.xMax, mouthY);
-        Rect backBounds = Rect.MinMaxRect(casingBounds.xMin, mouthY, casingBounds.xMax, casingBounds.yMax);
-        Mesh casingMesh = CreateMesh("Casing", casingTexture, frontBounds, assemblyScale, connectionHeight, 0);
-        Mesh mouthBackMesh = CreateMesh("MouthBack", casingTexture, backBounds,
-            assemblyScale, connectionHeight, MouthBackDepth);
-        float maximumTipWidth = (frontBounds.width / GetPixelsPerUnit(casingTexture))
-            * assemblyScale * MaximumTipWidthRatio;
-        Material casingMaterial = CreateMaterial("Casing", shader, casingTexture, isShadow: false);
-        Material casingShadowMaterial = CreateMaterial("Casing", shader, casingTexture, isShadow: true);
-
-        for (int index = 0; index < PreviewTypes.Length; index++)
-        {
-            string type = PreviewTypes[index];
-            Texture2D texture = ImportTexture(type + "Tip");
-            Rect tipBounds = FindVisibleBounds(texture);
-            float sourceTipWidth = tipBounds.width / GetPixelsPerUnit(texture);
-            float tipScale = Mathf.Min(assemblyScale * TipSizeMultiplier, maximumTipWidth / sourceTipWidth);
-            Mesh tipMesh = CreateMesh(type + "Tip", texture, tipBounds,
-                tipScale, connectionHeight, TipDepth);
-            Material tipMaterial = CreateMaterial(type + "Tip", shader, texture, isShadow: false);
-            Material tipShadowMaterial = CreateMaterial(type + "Tip", shader, texture, isShadow: true);
-
-            var cartridge = (Transform)cartridges.GetArrayElementAtIndex(index).objectReferenceValue;
-            var shadow = (MeshRenderer)shadows.GetArrayElementAtIndex(index).objectReferenceValue;
-            cartridge.GetComponent<MeshFilter>().sharedMesh = casingMesh;
-            cartridge.GetComponent<MeshRenderer>().sharedMaterial = casingMaterial;
-            shadow.GetComponent<MeshFilter>().sharedMesh = casingMesh;
-            shadow.sharedMaterial = casingShadowMaterial;
-            SetPart(cartridge, "Mouth back", mouthBackMesh, casingMaterial);
-            SetPart(shadow.transform, "Mouth back shadow", mouthBackMesh, casingShadowMaterial);
-            SetPart(cartridge, "Tip", tipMesh, tipMaterial);
-            SetPart(shadow.transform, "Tip shadow", tipMesh, tipShadowMaterial);
-        }
-
-        controller.RefreshCartridgeLayers();
-        controller.Scrub(1);
+        Material material = CreateMaterial("CartridgeVisual", shader, false);
+        Material shadowMaterial = CreateMaterial("CartridgeVisualShadow", shader, true);
+        GameObject root = new GameObject("Cartridge visual");
+        MeshRenderer casing = CreateLayer(root.transform, "Casing", material);
+        MeshRenderer tip = CreateLayer(root.transform, "Tip", material);
+        Transform shadows = new GameObject("Shadows").transform;
+        shadows.SetParent(root.transform, false);
+        MeshRenderer casingShadow = CreateLayer(shadows, "Casing shadow", shadowMaterial);
+        MeshRenderer tipShadow = CreateLayer(shadows, "Tip shadow", shadowMaterial);
+        CartridgeVisual visual = root.AddComponent<CartridgeVisual>();
+        Sprite plain = LoadSprite("PlainTip");
+        visual.Configure(LoadSprite("Casing2"), plain, GetSuggestedWidthScale(plain),
+            casing, tip, casingShadow, tipShadow, shadows);
+        PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+        UnityEngine.Object.DestroyImmediate(root);
     }
 
-    private static Texture2D ImportTexture(string type)
+    private static MeshRenderer CreateLayer(Transform parent, string name, Material material)
     {
-        string path = ArtFolder + type + ".png";
-        var importer = (TextureImporter)AssetImporter.GetAtPath(path);
-        if (importer == null)
-        {
-            throw new FileNotFoundException("Generated cartridge sprite is missing.", path);
-        }
-
-        if (type == "Casing2")
-        {
-            var reference = (TextureImporter)AssetImporter.GetAtPath(ArtFolder + "Casing.png");
-            var settings = new TextureImporterSettings();
-            importer.ReadTextureSettings(settings);
-            settings.spriteAlignment = (int)SpriteAlignment.Custom;
-            settings.spritePivot = reference.spritePivot;
-            settings.spritePixelsPerUnit = reference.spritePixelsPerUnit;
-            importer.SetTextureSettings(settings);
-        }
-
-        importer.textureType = TextureImporterType.Sprite;
-        importer.spriteImportMode = SpriteImportMode.Single;
-        importer.alphaIsTransparency = true;
-        importer.mipmapEnabled = false;
-        importer.isReadable = true;
-        importer.filterMode = FilterMode.Point;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
-        importer.wrapMode = TextureWrapMode.Clamp;
-        importer.maxTextureSize = 2048;
-        importer.SaveAndReimport();
-        return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-    }
-
-    private static Rect FindVisibleBounds(Texture2D texture)
-    {
-        Color32[] pixels = texture.GetPixels32();
-        int minX = texture.width;
-        int minY = texture.height;
-        int maxX = -1;
-        int maxY = -1;
-        bool hasTransparency = false;
-
-        for (int y = 0; y < texture.height; y++)
-        {
-            for (int x = 0; x < texture.width; x++)
-            {
-                if (pixels[y * texture.width + x].a <= 24)
-                {
-                    hasTransparency = true;
-                    continue;
-                }
-
-                minX = Mathf.Min(minX, x);
-                minY = Mathf.Min(minY, y);
-                maxX = Mathf.Max(maxX, x);
-                maxY = Mathf.Max(maxY, y);
-            }
-        }
-
-        if (maxX < 0 || !hasTransparency)
-        {
-            throw new InvalidOperationException(texture.name + " must have a transparent background.");
-        }
-
-        // Crop through UVs; the generated PNG pixels remain unchanged.
-        return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
-    }
-
-    private static float GetPixelsPerUnit(Texture2D texture)
-    {
-        var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture));
-        return importer.spritePixelsPerUnit;
-    }
-
-    private static Vector2 ToSpriteUnits(Texture2D texture, Vector2 pixel)
-    {
-        var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture));
-        Vector2 pivotPixels = Vector2.Scale(importer.spritePivot, new Vector2(texture.width, texture.height));
-        return (pixel - pivotPixels) / importer.spritePixelsPerUnit;
-    }
-
-    private static void SetPart(Transform parent, string name, Mesh mesh, Material material)
-    {
-        Transform part = parent.Find(name);
-        if (part == null)
-        {
-            part = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer)).transform;
-            part.SetParent(parent, false);
-        }
-
-        part.localPosition = Vector3.zero;
-        part.localRotation = Quaternion.identity;
-        part.localScale = Vector3.one;
-        part.GetComponent<MeshFilter>().sharedMesh = mesh;
-        MeshRenderer renderer = part.GetComponent<MeshRenderer>();
+        var root = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
+        root.transform.SetParent(parent, false);
+        MeshRenderer renderer = root.GetComponent<MeshRenderer>();
         renderer.sharedMaterial = material;
-        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.shadowCastingMode = ShadowCastingMode.Off;
         renderer.receiveShadows = false;
+        return renderer;
     }
 
-    private static Mesh CreateMesh(string type, Texture2D texture, Rect bounds,
-        float scale, float connectionHeight, float depth)
+    private static Material CreateMaterial(string name, Shader shader, bool shadow)
     {
-        string path = ArtFolder + type + "Mesh.asset";
-        Mesh mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
-        bool isNew = mesh == null;
-        if (isNew)
-        {
-            mesh = new Mesh();
-        }
-
-        Vector2 bottomLeft = ToSpriteUnits(texture, bounds.min) * scale;
-        Vector2 topRight = ToSpriteUnits(texture, bounds.max) * scale;
-        bottomLeft.y += connectionHeight;
-        topRight.y += connectionHeight;
-        Rect uv = new Rect(bounds.x / texture.width, bounds.y / texture.height,
-            bounds.width / texture.width, bounds.height / texture.height);
-
-        mesh.Clear();
-        mesh.name = type + " rigid modular part";
-        mesh.vertices = new[]
-        {
-            new Vector3(bottomLeft.x, bottomLeft.y, depth),
-            new Vector3(bottomLeft.x, topRight.y, depth),
-            new Vector3(topRight.x, bottomLeft.y, depth),
-            new Vector3(topRight.x, topRight.y, depth)
-        };
-        mesh.uv = new[]
-        {
-            new Vector2(uv.xMin, uv.yMin), new Vector2(uv.xMin, uv.yMax),
-            new Vector2(uv.xMax, uv.yMin), new Vector2(uv.xMax, uv.yMax)
-        };
-        mesh.triangles = new[] { 0, 1, 2, 1, 3, 2 };
-        mesh.RecalculateNormals();
-        mesh.bounds = new Bounds(Vector3.zero, new Vector3(17, 6, 6));
-        if (isNew)
-        {
-            AssetDatabase.CreateAsset(mesh, path);
-        }
-        else
-        {
-            EditorUtility.SetDirty(mesh);
-        }
-
-        return mesh;
-    }
-
-    private static Material CreateMaterial(string type, Shader shader, Texture2D texture, bool isShadow)
-    {
-        string suffix = isShadow ? "Shadow" : "";
-        string path = ArtFolder + type + suffix + ".mat";
+        string path = ArtFolder + name + ".mat";
         Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
         if (material == null)
         {
             material = new Material(shader);
             AssetDatabase.CreateAsset(material, path);
         }
-
-        material.shader = shader;
-        material.mainTexture = texture;
-        material.color = isShadow ? new Color(0, 0, 0, 0.52f) : Color.white;
+        material.mainTexture = LoadSprite("Casing2").texture;
+        material.color = shadow ? new Color(0, 0, 0, 0.52f) : Color.white;
         material.SetFloat("_Rigid", 1);
-        material.SetFloat("_ZWrite", isShadow ? 0 : 1);
-        material.renderQueue = isShadow ? 2451 : 2450;
-        EditorUtility.SetDirty(material);
+        material.SetFloat("_ZWrite", shadow ? 0 : 1);
+        material.renderQueue = shadow ? 2451 : 2450;
         return material;
     }
 
-    private static void ValidateAssembly(BandolierPreview controller)
-    {
-        var serialized = new SerializedObject(controller);
-        SerializedProperty cartridges = serialized.FindProperty("_cartridges");
-        Mesh sharedCasing = null;
-        for (int index = 0; index < cartridges.arraySize; index++)
-        {
-            var cartridge = (Transform)cartridges.GetArrayElementAtIndex(index).objectReferenceValue;
-            Mesh casing = cartridge.GetComponent<MeshFilter>().sharedMesh;
-            if (sharedCasing != null && casing != sharedCasing)
-            {
-                throw new InvalidOperationException("All cartridges must share the same casing mesh.");
-            }
-            sharedCasing = casing;
-            MeshRenderer[] layers = cartridge.GetComponentsInChildren<MeshRenderer>(true);
-            if (layers.Length != 6 || cartridge.Find("Tip") == null)
-            {
-                throw new InvalidOperationException("Expected front casing, mouth back, tip and three matching shadow layers.");
-            }
-            Mesh tip = cartridge.Find("Tip").GetComponent<MeshFilter>().sharedMesh;
-            Mesh mouthBack = cartridge.Find("Mouth back").GetComponent<MeshFilter>().sharedMesh;
-            float casingWidth = casing.vertices[2].x - casing.vertices[0].x;
-            float tipWidth = tip.vertices[2].x - tip.vertices[0].x;
-            if (tipWidth > casingWidth * MaximumTipWidthRatio + 0.001f)
-            {
-                throw new InvalidOperationException("Tip exceeds the casing mouth width.");
-            }
-            if (casing.vertices[0].z >= tip.vertices[0].z || tip.vertices[0].z >= mouthBack.vertices[0].z)
-            {
-                throw new InvalidOperationException("Tip must sit between the front and back of the mouth.");
-            }
-            foreach (MeshRenderer layer in layers)
-            {
-                if (layer.GetComponent<MeshFilter>().sharedMesh.vertexCount != 4)
-                {
-                    throw new InvalidOperationException("Each rigid part must be a quad.");
-                }
-            }
-        }
-    }
-
-    // Runs in the isolated validation project; does not rebuild the user's scene.
     public static void ValidateInBatch()
     {
-        try
-        {
-            ApplyToScene();
-            BandolierPreview controller = UnityEngine.Object.FindAnyObjectByType<BandolierPreview>();
-            ValidateAssembly(controller);
-            controller.Scrub(0);
-            foreach (MeshRenderer layer in controller.GetComponentsInChildren<MeshRenderer>())
-            {
-                if (layer.name == "Tip" || layer.name == "Tip shadow" || layer.name.StartsWith("Mouth back"))
-                {
-                    if (layer.enabled)
-                    {
-                        throw new InvalidOperationException("Folded cartridge part is visible.");
-                    }
-                }
-            }
-            controller.Scrub(0.25f);
-            controller.Scrub(0.65f);
-            controller.Scrub(1);
-
-            Camera camera = Camera.main;
-            var target = new RenderTexture(1600, 900, 24);
-            RenderTexture previousTarget = camera.targetTexture;
-            RenderTexture previousActive = RenderTexture.active;
-            camera.targetTexture = target;
-            camera.Render();
-            RenderTexture.active = target;
-            var capture = new Texture2D(1600, 900, TextureFormat.RGBA32, false);
-            capture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0);
-            capture.Apply();
-            Directory.CreateDirectory("Artifacts");
-            File.WriteAllBytes("Artifacts/bandolier-new-cartridges.png", capture.EncodeToPNG());
-            camera.targetTexture = previousTarget;
-            RenderTexture.active = previousActive;
-            target.Release();
-            UnityEngine.Object.DestroyImmediate(target);
-            UnityEngine.Object.DestroyImmediate(capture);
-            File.WriteAllText("Artifacts/cartridge-art-validation.txt",
-                "PASS: six fitted modular cartridges, shared open casing, six smaller tips, three shadow parts each; folded visibility, scrub and render completed.");
-            EditorApplication.Exit(0);
-        }
-        catch (Exception exception)
-        {
-            Debug.LogException(exception);
-            EditorApplication.Exit(1);
-        }
+        CartridgeVisualValidation.Run();
     }
 }
-

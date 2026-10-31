@@ -284,7 +284,8 @@ public class BandolierPreview : MonoBehaviour
             _layerProperties = new MaterialPropertyBlock();
         }
 
-        _layerProperties.Clear();
+        // CartridgeVisual owns each sprite texture; keep it while updating the curl properties.
+        renderer.GetPropertyBlock(_layerProperties);
         _layerProperties.SetFloat("_Progress", _progress);
         _layerProperties.SetFloat("_Width", _width);
         _layerProperties.SetFloat("_Radius", _radius);
@@ -416,9 +417,17 @@ public class BandolierPreview : MonoBehaviour
             return;
         }
 
-        shadow.transform.localPosition = _cartridgeShadowOffset;
-        shadow.transform.localRotation = Quaternion.identity;
-        shadow.transform.localScale = Vector3.one;
+        CartridgeVisual visual = _cartridges[index].GetComponent<CartridgeVisual>();
+        if (visual != null)
+        {
+            visual.SetShadow(_cartridgeShadowOffset, _cartridgeShadowOpacity);
+        }
+        else
+        {
+            shadow.transform.localPosition = _cartridgeShadowOffset;
+            shadow.transform.localRotation = Quaternion.identity;
+            shadow.transform.localScale = Vector3.one;
+        }
         foreach (MeshRenderer layer in _shadowLayers[index])
         {
             layer.enabled = isVisible;
@@ -437,6 +446,19 @@ public class BandolierPreview : MonoBehaviour
         _shadowLayers = new MeshRenderer[count][];
         for (int index = 0; index < count; index++)
         {
+            CartridgeVisual visual = null;
+            if (_cartridges[index] != null)
+            {
+                visual = _cartridges[index].GetComponent<CartridgeVisual>();
+            }
+
+            if (visual != null)
+            {
+                _cartridgeLayers[index] = new[] { visual.Casing, visual.Tip };
+                _shadowLayers[index] = new[] { visual.CasingShadow, visual.TipShadow };
+                continue;
+            }
+
             MeshRenderer shadow = null;
             if (_cartridgeShadows != null && index < _cartridgeShadows.Length)
             {
