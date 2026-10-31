@@ -12,6 +12,8 @@ public class RunDirector : MonoBehaviour
     public bool AwaitingReward { get; private set; }
     public bool ChoosingModule { get; private set; }
     public bool Victory { get; private set; }
+    public bool Defeated { get; private set; }
+    public PlayerHealth PlayerHealth { get; private set; }
     public AmmoItem[] Offers { get; private set; }
     public Shooter Shooter { get; private set; }
     public BulletContainer Drum => Shooter.Container;
@@ -21,6 +23,11 @@ public class RunDirector : MonoBehaviour
     private IEnumerator Start()
     {
         Shooter = FindAnyObjectByType<Shooter>();
+        PlayerHealth = Shooter.GetComponent<PlayerHealth>();
+        if (PlayerHealth == null)
+        {
+            PlayerHealth = Shooter.gameObject.AddComponent<PlayerHealth>();
+        }
         Drum.Init();
         BulletContainerView oldView = FindAnyObjectByType<BulletContainerView>();
         if (oldView != null)
@@ -35,6 +42,7 @@ public class RunDirector : MonoBehaviour
             yield return PlayWave(wave);
             if (wave < GameScript.WaveCount)
             {
+                GameAudio.Play(SoundCue.WaveWin);
                 ShowReward(false);
                 yield return new WaitUntil(() => !AwaitingReward);
                 ShowReward(true);
@@ -42,6 +50,8 @@ public class RunDirector : MonoBehaviour
             }
         }
         Victory = true;
+        GameAudio.SilenceCombat();
+        GameAudio.Play(SoundCue.GameWin);
         Time.timeScale = 0;
         _ui.ShowVictory();
     }
@@ -76,8 +86,26 @@ public class RunDirector : MonoBehaviour
     public void Choose(int offer, int slot)
     {
         if(!AwaitingReward||offer<0||offer>=Offers.Length||slot<0||slot>=Drum.MaxBullets) return;
+        GameAudio.Play(SoundCue.Select);
         Drum.Install(slot,Offers[offer],ChoosingModule);
         AwaitingReward=false; _ui.HideReward(); Time.timeScale=1;
     }
+    public void Lose()
+    {
+        if (Victory || Defeated)
+        {
+            return;
+        }
+
+        Defeated = true;
+        CombatActive = false;
+        AwaitingReward = false;
+        StopAllCoroutines();
+        Time.timeScale = 0;
+        GameAudio.SilenceCombat();
+        GameAudio.Play(SoundCue.Defeat, delay: 0.45f);
+        _ui.ShowDefeat();
+    }
+
     void OnDestroy() { if(Instance==this) Instance=null; Time.timeScale=1; }
 }

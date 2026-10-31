@@ -1,0 +1,278 @@
+[
+  {
+    "name": "Shot_1",
+    "seconds": 0.42,
+    "peak_dbfs": -2.5,
+    "rms_dbfs": -18.65
+  },
+  {
+    "name": "Shot_2",
+    "seconds": 0.42,
+    "peak_dbfs": -2.5,
+    "rms_dbfs": -18.63
+  },
+  {
+    "name": "Shot_3",
+    "seconds": 0.42,
+    "peak_dbfs": -2.5,
+    "rms_dbfs": -18.68
+  },
+  {
+    "name": "Shot_4",
+    "seconds": 0.42,
+    "peak_dbfs": -2.5,
+    "rms_dbfs": -18.49
+  },
+  {
+    "name": "Shot_5",
+    "seconds": 0.42,
+    "peak_dbfs": -2.5,
+    "rms_dbfs": -17.9
+  },
+  {
+    "name": "Explosion_1",
+    "seconds": 1.486,
+    "peak_dbfs": -1.94,
+    "rms_dbfs": -19.39
+  },
+  {
+    "name": "Explosion_2",
+    "seconds": 1.339,
+    "peak_dbfs": -1.94,
+    "rms_dbfs": -19.63
+  },
+  {
+    "name": "Explosion_3",
+    "seconds": 1.24,
+    "peak_dbfs": -1.94,
+    "rms_dbfs": -19.7
+  },
+  {
+    "name": "Swap_1",
+    "seconds": 0.425,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -27.21
+  },
+  {
+    "name": "Bandolier_1",
+    "seconds": 1.088,
+    "peak_dbfs": -2.27,
+    "rms_dbfs": -21.68
+  },
+  {
+    "name": "Swap_2",
+    "seconds": 0.425,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -25.4
+  },
+  {
+    "name": "Bandolier_2",
+    "seconds": 1.088,
+    "peak_dbfs": -2.27,
+    "rms_dbfs": -22.15
+  },
+  {
+    "name": "Swap_3",
+    "seconds": 0.425,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -19.29
+  },
+  {
+    "name": "Bandolier_3",
+    "seconds": 1.088,
+    "peak_dbfs": -2.27,
+    "rms_dbfs": -22.28
+  },
+  {
+    "name": "Hit_1",
+    "seconds": 0.22,
+    "peak_dbfs": -3.88,
+    "rms_dbfs": -17.23
+  },
+  {
+    "name": "EnemyPain_1",
+    "seconds": 0.341,
+    "peak_dbfs": -4.44,
+    "rms_dbfs": -14.64
+  },
+  {
+    "name": "EnemyDeath_1",
+    "seconds": 1.208,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -18.19
+  },
+  {
+    "name": "HeroImpact_1",
+    "seconds": 0.22,
+    "peak_dbfs": -3.1,
+    "rms_dbfs": -15.32
+  },
+  {
+    "name": "HeroPain_1",
+    "seconds": 0.689,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -24.18
+  },
+  {
+    "name": "Ricochet_1",
+    "seconds": 0.138,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -19.94
+  },
+  {
+    "name": "Hit_2",
+    "seconds": 0.22,
+    "peak_dbfs": -3.88,
+    "rms_dbfs": -17.41
+  },
+  {
+    "name": "EnemyPain_2",
+    "seconds": 0.321,
+    "peak_dbfs": -4.44,
+    "rms_dbfs": -14.68
+  },
+  {
+    "name": "EnemyDeath_2",
+    "seconds": 1.111,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -18.23
+  },
+  {
+    "name": "HeroImpact_2",
+    "seconds": 0.22,
+    "peak_dbfs": -3.1,
+    "rms_dbfs": -15.47
+  },
+  {
+    "name": "HeroPain_2",
+    "seconds": 0.671,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -24.17
+  },
+  {
+    "name": "Ricochet_2",
+    "seconds": 0.124,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -20.89
+  },
+  {
+    "name": "Hit_3",
+    "seconds": 0.22,
+    "peak_dbfs": -3.88,
+    "rms_dbfs": -17.05
+  },
+  {
+    "name": "EnemyPain_3",
+    "seconds": 0.303,
+    "peak_dbfs": -4.44,
+    "rms_dbfs": -14.71
+  },
+  {
+    "name": "EnemyDeath_3",
+    "seconds": 1.028,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -18.26
+  },
+  {
+    "name": "HeroImpact_3",
+    "seconds": 0.22,
+    "peak_dbfs": -3.1,
+    "rms_dbfs": -14.73
+  },
+  {
+    "name": "HeroPain_3",
+    "seconds": 0.655,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -24.13
+  },
+  {
+    "name": "Ricochet_3",
+    "seconds": 0.113,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -20.88
+  },
+  {
+    "name": "Hit_4",
+    "seconds": 0.22,
+    "peak_dbfs": -3.88,
+    "rms_dbfs": -17.08
+  },
+  {
+    "name": "EnemyPain_4",
+    "seconds": 0.287,
+    "peak_dbfs": -4.44,
+    "rms_dbfs": -14.73
+  },
+  {
+    "name": "EnemyDeath_4",
+    "seconds": 0.957,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -18.01
+  },
+  {
+    "name": "HeroImpact_4",
+    "seconds": 0.22,
+    "peak_dbfs": -3.1,
+    "rms_dbfs": -15.42
+  },
+  {
+    "name": "HeroPain_4",
+    "seconds": 0.639,
+    "peak_dbfs": -3.74,
+    "rms_dbfs": -24.12
+  },
+  {
+    "name": "Ricochet_4",
+    "seconds": 0.138,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -18.93
+  },
+  {
+    "name": "HeroDeath_1",
+    "seconds": 0.882,
+    "peak_dbfs": -3.1,
+    "rms_dbfs": -23.73
+  },
+  {
+    "name": "Select_1",
+    "seconds": 0.3,
+    "peak_dbfs": -6.02,
+    "rms_dbfs": -29.19
+  },
+  {
+    "name": "Select_2",
+    "seconds": 0.3,
+    "peak_dbfs": -6.02,
+    "rms_dbfs": -29.67
+  },
+  {
+    "name": "Select_3",
+    "seconds": 0.3,
+    "peak_dbfs": -6.02,
+    "rms_dbfs": -23.41
+  },
+  {
+    "name": "Reload_1",
+    "seconds": 0.93,
+    "peak_dbfs": -5.19,
+    "rms_dbfs": -31.36
+  },
+  {
+    "name": "WaveWin_1",
+    "seconds": 0.89,
+    "peak_dbfs": -4.15,
+    "rms_dbfs": -15.24
+  },
+  {
+    "name": "GameWin_1",
+    "seconds": 1.56,
+    "peak_dbfs": -3.35,
+    "rms_dbfs": -17.06
+  },
+  {
+    "name": "Defeat_1",
+    "seconds": 1.36,
+    "peak_dbfs": -4.15,
+    "rms_dbfs": -16.37
+  }
+]

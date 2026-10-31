@@ -42,6 +42,7 @@ public class BandolierPreview : MonoBehaviour
     private float _startTimeline;
     private float _targetTimeline = 1;
     private bool _isPlaying;
+    private bool _openingSoundPlayed;
     private MeshRenderer[][] _cartridgeLayers;
     private MeshRenderer[][] _shadowLayers;
 
@@ -128,6 +129,7 @@ public class BandolierPreview : MonoBehaviour
 
     private void StartReplay(float delay)
     {
+        _openingSoundPlayed = false;
         _timeline = 0;
         _startTimeline = 0;
         _targetTimeline = 1;
@@ -137,6 +139,7 @@ public class BandolierPreview : MonoBehaviour
 
     private void AnimateTo(float target)
     {
+        _openingSoundPlayed = false;
         // Settling follows the opening; starting from its end skips an idle tail.
         _startTimeline = Mathf.Min(_timeline, OpeningEndTime);
         _targetTimeline = target;
@@ -152,6 +155,18 @@ public class BandolierPreview : MonoBehaviour
         }
 
         _playbackTime += Time.unscaledDeltaTime;
+        if (!_openingSoundPlayed && _playbackTime >= 0)
+        {
+            _openingSoundPlayed = true;
+            if (_targetTimeline > _startTimeline)
+            {
+                GameAudio.Play(SoundCue.BandolierOpen, pitchScale: 1.35f / _duration);
+            }
+            else
+            {
+                GameAudio.Play(SoundCue.Swap, pitchScale: 0.8f);
+            }
+        }
         bool isFolding = _targetTimeline < _startTimeline;
         float duration = _duration * (isFolding ? FoldDurationMultiplier : 1);
         float playbackProgress = Mathf.Clamp01(_playbackTime / duration);

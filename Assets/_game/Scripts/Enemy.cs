@@ -25,6 +25,10 @@ public class Enemy : MonoBehaviour
     bool _dead;
     Vector3 _knockback;
     static Sprite _square;
+    private PlayerHealth _playerHealth;
+    private float _nextContactAttack;
+    private float _nextPainReaction;
+    private int _receivedHits;
     public const float NaturalOverloadThreshold = 5f;
 
     private float _fireOverloadProgress;
@@ -52,6 +56,10 @@ public class Enemy : MonoBehaviour
     {
         var shooter = FindAnyObjectByType<Shooter>();
         if (shooter != null) _player = shooter.transform;
+        if (shooter != null)
+        {
+            _playerHealth = shooter.GetComponent<PlayerHealth>();
+        }
         _sprite = GetComponent<SpriteRenderer>();
         Health = _maxHealth;
     }
@@ -76,11 +84,31 @@ public class Enemy : MonoBehaviour
         _sprite.color = Time.time < _flashUntil ? new Color(2,2,2,1) : Frozen ? Color.cyan : _baseColor;
         if (_healthBar != null) _healthBar.transform.localScale = new Vector3(Health / _maxHealth,1,1);
         if (RunDirector.Instance == null || !RunDirector.Instance.CombatActive || _player == null) return;
+        TryContactAttack();
         float speed = Frozen ? 0 : _speed * Mathf.Max(.25f,1-Cold*.15f) * (_maxHealth >= 80 ? .65f : 1);
         if (Vector3.Distance(transform.position,_player.position) > .65f)
             transform.position = Vector3.MoveTowards(transform.position,_player.position,speed*Time.deltaTime);
         transform.position += _knockback * Time.deltaTime; _knockback = Vector3.Lerp(_knockback,Vector3.zero,12*Time.deltaTime);
     }
+    private void TryContactAttack()
+    {
+        if (Frozen || Time.time < _nextContactAttack || (_player.position - transform.position).sqrMagnitude > 0.8f * 0.8f)
+        {
+            return;
+        }
+
+        if (_playerHealth == null)
+        {
+            _playerHealth = _player.GetComponent<PlayerHealth>();
+        }
+
+        _nextContactAttack = Time.time + 1.1f;
+        if (_playerHealth != null)
+        {
+            _playerHealth.TryTakeDamage(10);
+        }
+    }
+
     public void ReceiveHit(CombatProfile profile, Vector3 direction)
     {
         if (!IsAlive)
@@ -88,6 +116,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        GameAudio.Play(SoundCue.EnemyHit, transform.position);
         bool shatter = Frozen;
         Frozen = false;
         float damage = profile.Damage * (HasStatus || shatter ? profile.Afflicted : 1);
@@ -97,6 +126,7 @@ public class Enemy : MonoBehaviour
         }
 
         TakeDamage(damage, profile.Color, direction);
+        _receivedHits++;
         if (shatter)
         {
             CombatEffects.Area(transform.position, 15 * profile.All * profile.Area, Color.cyan);
@@ -121,6 +151,7 @@ public class Enemy : MonoBehaviour
 
         if (!IsAlive || !properties.Overload)
         {
+            TryPlayPainReaction();
             return;
         }
 
@@ -153,6 +184,17 @@ public class Enemy : MonoBehaviour
         {
             Punctures = 0;
             TakeDamage(40 * profile.All, new Color(0.8f, 0.5f, 1), Vector3.zero);
+        }
+        TryPlayPainReaction();
+    }
+
+    private void TryPlayPainReaction()
+    {
+        // Resolve puncture/overload first: a fatal hit should not also start a pain voice.
+        if (IsAlive && _receivedHits % 3 == 1 && Time.time >= _nextPainReaction)
+        {
+            _nextPainReaction = Time.time + 0.8f;
+            GameAudio.Play(SoundCue.EnemyPain, transform.position);
         }
     }
 
@@ -319,6 +361,7 @@ public class Enemy : MonoBehaviour
     void Die()
     {
         if (_dead) return; _dead = true;
+        GameAudio.Play(SoundCue.EnemyDeath, transform.position);
         G.Enemies.Remove(this);
         foreach (var c in GetComponents<Collider2D>()) c.enabled = false;
         if (_onDeadVFX != null) { var fx=Instantiate(_onDeadVFX,transform.position,Quaternion.identity); fx.Play(true); Destroy(fx.gameObject,2); }
@@ -333,6 +376,7 @@ public static class CombatEffects
     public static Enemy[] InRadius(Vector3 origin) => G.Enemies.Where(e=>e!=null&&e.IsAlive&&(e.transform.position-origin).sqrMagnitude<=Radius*Radius).ToArray();
     public static void Area(Vector3 origin, float damage, Color color)
     {
+        GameAudio.Play(SoundCue.Explosion, origin);
         if (G.DataBase.ExplosionPrefab != null) Object.Instantiate(G.DataBase.ExplosionPrefab,origin,Quaternion.identity).Visual(Radius,color);
         foreach (var e in InRadius(origin)) e.TakeDamage(damage,color,e.transform.position-origin);
     }
