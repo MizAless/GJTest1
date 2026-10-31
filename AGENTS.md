@@ -11,6 +11,7 @@
 ## Где что лежит
 
 - `Assets/_game/Scenes/Game.unity` — основная сцена.
+- Подсказки: `Resources/UI/ItemTooltip.prefab`, `Scripts/Tooltips/` и отдельная `Scenes/TooltipPreview.unity`. `TooltipTrigger` подключён к барабану и наградам RunUI; TooltipPresenter следует слева от курсора, меняет сторону и ограничивает экран. Контент универсален; AmmoItem пока не хранит имплисит отдельно, поэтому адаптер не выдумывает его. Проверка: `TooltipValidation.Run`, инструкция — `Scripts/Tooltips/README.md`.
 - `Assets/_game/Scenes/BandolierPreview.unity` — отдельная сцена раскатывания кожаного патронташа; в основной экран наград не встроена. Play запускает анимацию, пробел повторяет её, кнопки и ползунок позволяют раскрывать, сворачивать и просматривать изгиб.
 - Графика патронташа, сетки, шейдер и материалы: `Assets/_game/Art/Bandolier/`; контроллер: `Scripts/Bandolier/BandolierPreview.cs`; сборка сцены: `Editor/BandolierPreviewAuthoring.cs`. Происхождение и промпты — в README папки графики.
 - Патроны тестовой сцены собраны из общей гильзы и отдельных наконечников `Art/Bandolier/ModularAmmo/`: три видимых меша и три теневые копии на слот (передняя часть Casing2, задняя часть горлышка и уменьшенный наконечник между ними). `BandolierAmmoArt.ApplyToScene` обновляет только патроны существующей сцены, сохраняя петли; `BandolierPreview.RefreshCartridgeLayers` обновляет кеш после изменения иерархии. Имитация вращения пока только обсуждается.
