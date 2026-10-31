@@ -13,15 +13,14 @@ public class RunUI : MonoBehaviour
     Canvas _canvas;
     Font _font;
     RectTransform _root, _modal;
-    Text _round, _note, _title, _subtitle, _comparison, _detailText;
+    Text _round, _note, _detailText;
     private Text _heroHealth;
     GameObject _detail;
-    Button _confirm;
+    private BandolierUpgradeScreen _upgradeScreen;
+    public BandolierUpgradeScreen UpgradeScreen => _upgradeScreen;
     readonly List<Button> _hud = new List<Button>();
-    readonly List<Button> _rewardSlots = new List<Button>();
-    readonly List<Button> _cards = new List<Button>();
     readonly Dictionary<Enemy,Text> _labels = new Dictionary<Enemy,Text>();
-    int _chosen, _slot, _detailSlot=-1;
+    int _detailSlot=-1;
     float[] _pulses=new float[6];
     static Color Panel => new Color(.07f,.1f,.15f,.96f);
     static Color Gold => new Color(1,.74f,.38f);
@@ -45,7 +44,10 @@ public class RunUI : MonoBehaviour
         }
         _detail=PanelRect(_root,"Cartridge inspection",20,88,370,220,Panel).gameObject;
         _detailText=Label(_detail.transform,"Details",12,10,346,200,15); _detail.SetActive(false);
-        BuildReward();
+        _upgradeScreen = gameObject.AddComponent<BandolierUpgradeScreen>();
+        _upgradeScreen.Initialize(run, _canvas);
+        _modal = PanelRect(_root, "Victory screen", 0, 0, 1280, 720, new Color(0.025f, 0.04f, 0.065f, 0.98f));
+        _modal.gameObject.SetActive(false);
         run.Drum.Transferred+=Transfer;
         Refresh();
     }
@@ -69,39 +71,17 @@ public class RunUI : MonoBehaviour
         var t=Label(r,"Label",9,6,w-18,h-12,15);t.alignment=TextAnchor.MiddleCenter; return b;
     }
     void TextOf(Button b,string text,Color color) { var t=b.GetComponentInChildren<Text>();t.text=text;t.color=color; }
-    void BuildReward()
-    {
-        _modal=PanelRect(_root,"Reward screen",0,0,1280,720,new Color(.025f,.04f,.065f,.98f));
-        _title=Label(_modal,"Title",45,25,1190,42,29);_title.color=Gold;
-        _subtitle=Label(_modal,"Subtitle",45,73,1190,48,16);
-        for(int i=0;i<3;i++)
-        {
-            int index=i; var b=MakeButton(_modal,"Reward "+(i+1),45+i*400,135,385,270,()=>{_chosen=index;GameAudio.Play(SoundCue.Select);RefreshRewards();});
-            _cards.Add(b); var t=b.GetComponentInChildren<Text>();t.alignment=TextAnchor.UpperLeft;t.fontSize=17;t.supportRichText=true;
-            b.gameObject.AddComponent<TooltipTrigger>().Bind(() => AmmoTooltipContent.Create(_run.Offers[index]));
-        }
-        _comparison=Label(_modal,"Slot comparison",45,423,1190,55,15);
-        for(int i=0;i<6;i++)
-        {
-            int index=i; var b=MakeButton(_modal,"Install in slot "+(i+1),45+i*200,487,185,88,()=>{_slot=index;RefreshRewards();});
-            b.GetComponentInChildren<Text>().fontSize=12;_rewardSlots.Add(b);
-            b.gameObject.AddComponent<TooltipTrigger>().Bind(() => SlotTooltip(index));
-        }
-        MakeButton(_modal,"Move cartridge left",45,596,230,45,()=>{_run.Drum.SwapCartridges(_slot,_run.Drum.Next(_slot-1));_slot=_run.Drum.Next(_slot-1);RefreshRewards();}).GetComponentInChildren<Text>().text="← Переместить патрон";
-        MakeButton(_modal,"Move cartridge right",290,596,230,45,()=>{_run.Drum.SwapCartridges(_slot,_run.Drum.Next(_slot+1));_slot=_run.Drum.Next(_slot+1);RefreshRewards();}).GetComponentInChildren<Text>().text="Переместить патрон →";
-        _confirm=MakeButton(_modal,"Confirm reward",820,596,405,52,()=>_run.Choose(_chosen,_slot));
-        var help=Label(_modal,"Help",45,659,1170,38,14);help.text="Выберите 1 из 3, затем гнездо и подтвердите. Патрон можно переставить; модуль остаётся в своём гнезде. R — начать заново.";
-        _modal.gameObject.SetActive(false);
-    }
     public void ShowReward()
     {
         TooltipPresenter.For(_canvas).HideAll();
-        _chosen=0;_slot=0;_detail.SetActive(false);_modal.gameObject.SetActive(true);RefreshRewards();
+        _detail.SetActive(false);
+        _upgradeScreen.ShowStage();
     }
+
     public void HideReward()
     {
         TooltipPresenter.For(_canvas).HideAll();
-        _modal.gameObject.SetActive(false);
+        _upgradeScreen.Close();
         Refresh();
     }
 
@@ -109,27 +89,7 @@ public class RunUI : MonoBehaviour
     {
         return AmmoTooltipContent.Create(_run.Drum.Cartridges[index], _run.Drum.Sockets[index]);
     }
-    void RefreshRewards()
-    {
-        bool module=_run.ChoosingModule;
-        string rewardType = module ? "модуль" : "патрон";
-        _title.text = "Волна " + _run.Round + " пройдена · выберите " + rewardType;
-        _subtitle.text=_run.Round==0?"Получен стартовый "+_run.Drum.Cartridges[0].Name+". Остальные патроны обычные. Выберите модуль для любого гнезда.":"Награда: один случайный "+(module?"модуль для гнезда":"патрон")+" из трёх. Сравните свойства и выберите место установки.";
-        for(int i=0;i<3;i++)
-        {
-            var item=_run.Offers[i]; string color=ColorUtility.ToHtmlStringRGB(AmmoItem.RarityColor(item.Rarity));
-            TextOf(_cards[i],"<b>"+item.Name+"</b>\n<color=#"+color+">"+AmmoItem.RarityName(item.Rarity)+"</color>\n\n"+item.Description+"\n\n<size=12>"+item.Properties.Tags()+"</size>",Color.white);
-            _cards[i].GetComponent<Image>().color=i==_chosen?new Color(.28f,.29f,.24f):new Color(.12f,.17f,.24f);
-        }
-        for(int i=0;i<6;i++)
-        {
-            var cartridge=_run.Drum.Cartridges[i];var socket=_run.Drum.Sockets[i];
-            TextOf(_rewardSlots[i],"ГНЕЗДО "+(i+1)+" · "+_run.Drum.Profiles[i].Damage.ToString("0.#")+" урона\n"+cartridge.Properties.Description().Replace('\n',' ') +"\nМодуль: "+(socket==null?"нет":socket.Properties.Description().Replace('\n',' ')),i==_slot?Gold:Color.white);
-        }
-        var old=module?_run.Drum.Sockets[_slot]:_run.Drum.Cartridges[_slot];
-        _comparison.text="Гнездо "+(_slot+1)+". Заменяется: "+(old==null?"пустой модуль":old.Name)+".\n"+(old==null?"":old.Description.Replace('\n',' '));
-        TextOf(_confirm,"Установить в гнездо "+(_slot+1),Gold);
-    }
+
     public void ShowVictory()
     {
         _modal.gameObject.SetActive(true);
@@ -154,6 +114,7 @@ public class RunUI : MonoBehaviour
     }
     public void ShowDefeat()
     {
+        _upgradeScreen.Close();
         TooltipPresenter.For(_canvas).HideAll();
         _detail.SetActive(false);
         _modal.gameObject.SetActive(true);

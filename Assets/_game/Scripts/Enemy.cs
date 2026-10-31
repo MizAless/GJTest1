@@ -82,7 +82,7 @@ public class Enemy : MonoBehaviour
     {
         if (!IsAlive) return;
         _sprite.color = Time.time < _flashUntil ? new Color(2,2,2,1) : Frozen ? Color.cyan : _baseColor;
-        if (_healthBar != null) _healthBar.transform.localScale = new Vector3(Health / _maxHealth,1,1);
+        UpdateHealthBar();
         if (RunDirector.Instance == null || !RunDirector.Instance.CombatActive || _player == null) return;
         TryContactAttack();
         float speed = Frozen ? 0 : _speed * Mathf.Max(.25f,1-Cold*.15f) * (_maxHealth >= 80 ? .65f : 1);
@@ -344,11 +344,25 @@ public class Enemy : MonoBehaviour
             _poisonOverloadProgress = progress;
         }
     }
+    private void UpdateHealthBar()
+    {
+        if (_healthBar == null)
+        {
+            return;
+        }
+        float fraction = Mathf.Clamp01(Health / _maxHealth);
+        _healthBar.transform.localScale = new Vector3(fraction, 1, 1);
+        // Compensate the centered sprite pivot so only its right edge moves as health falls.
+        float centerOffset = (fraction - 1) * _square.bounds.extents.x;
+        _healthBar.transform.localPosition = new Vector3(centerOffset, 0, 0);
+    }
+
     public void TakeDamage() => TakeDamage(10,Color.white,Vector3.zero);
     public void TakeDamage(float amount, Color color, Vector3 direction)
     {
         if (!IsAlive || amount <= 0) return;
         Health = Mathf.Max(0,Health-amount);
+        UpdateHealthBar();
         _flashUntil = Time.time + .11f; _knockback += direction.normalized * 1.8f;
         if (RunUI.Instance != null) RunUI.Instance.Damage(transform.position,amount,color);
         if (_hitVFX != null)

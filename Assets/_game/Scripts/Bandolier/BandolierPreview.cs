@@ -45,6 +45,20 @@ public class BandolierPreview : MonoBehaviour
     private bool _openingSoundPlayed;
     private MeshRenderer[][] _cartridgeLayers;
     private MeshRenderer[][] _shadowLayers;
+    private readonly float[] _slotLift = new float[6];
+
+    public void SetSlotLift(int index, float amount)
+    {
+        if (index >= 0 && index < _slotLift.Length)
+        {
+            _slotLift[index] = Mathf.Clamp01(amount);
+        }
+    }
+
+    public Transform GetCartridge(int index)
+    {
+        return _cartridges[index];
+    }
 
     public float Progress => _progress;
     public float Timeline => _timeline;
@@ -417,6 +431,9 @@ public class BandolierPreview : MonoBehaviour
             Mathf.Sin(impactAge * 48) * kick * 3,
             Mathf.Sin(impactAge * 60 + index * 0.61f) * kick * 3.2f);
         cartridge.localScale = Vector3.one;
+        float lift = _slotLift[index];
+        cartridge.localPosition += new Vector3(0, 1.7f * lift, -0.25f * lift);
+        cartridge.localRotation *= Quaternion.Euler(-8 * lift, 0, 12 * lift);
     }
 
     private void UpdateCartridgeShadow(int index, bool isVisible)

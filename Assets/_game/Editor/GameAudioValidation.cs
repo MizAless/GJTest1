@@ -17,6 +17,7 @@ public static class GameAudioValidation
     private static double _stageStart;
     private static Enemy _first;
     private static Enemy _second;
+    private static bool _checkedRewardSelection;
 
     public static void Run()
     {
@@ -134,7 +135,24 @@ public static class GameAudioValidation
             {
                 if (run.AwaitingReward)
                 {
-                    run.Choose(0, 0);
+                    UpgradeSelection selection = RunUI.Instance.UpgradeScreen.Selection;
+                    int selectionsBefore = Count(SoundCue.Select);
+                    if (!_checkedRewardSelection)
+                    {
+                        int swapsBefore = Count(SoundCue.Swap);
+                        selection.SelectSlot(0);
+                        selection.SelectSlot(1);
+                        Assert(Count(SoundCue.Swap) > swapsBefore, "New bandolier swap has no audio.");
+                    }
+                    selection.SelectOffer(0);
+                    selection.SelectSlot(0);
+                    Assert(selection.AwaitingConfirmation, "New bandolier confirmation was not reached.");
+                    if (!_checkedRewardSelection)
+                    {
+                        Assert(Count(SoundCue.Select) > selectionsBefore, "New bandolier selection has no audio.");
+                        _checkedRewardSelection = true;
+                    }
+                    selection.Confirm();
                 }
                 else if (!run.Victory)
                 {

@@ -45,8 +45,6 @@ public class RunDirector : MonoBehaviour
                 GameAudio.Play(SoundCue.WaveWin);
                 ShowReward(false);
                 yield return new WaitUntil(() => !AwaitingReward);
-                ShowReward(true);
-                yield return new WaitUntil(() => !AwaitingReward);
             }
         }
         Victory = true;
@@ -85,10 +83,32 @@ public class RunDirector : MonoBehaviour
     }
     public void Choose(int offer, int slot)
     {
-        if(!AwaitingReward||offer<0||offer>=Offers.Length||slot<0||slot>=Drum.MaxBullets) return;
+        if (!AwaitingReward || offer < 0 || offer >= Offers.Length || slot < 0 || slot >= Drum.MaxBullets)
+        {
+            return;
+        }
         GameAudio.Play(SoundCue.Select);
-        Drum.Install(slot,Offers[offer],ChoosingModule);
-        AwaitingReward=false; _ui.HideReward(); Time.timeScale=1;
+        Drum.Install(slot, Offers[offer], ChoosingModule);
+        if (!ChoosingModule)
+        {
+            ChoosingModule = true;
+            Offers = AmmoGenerator.Offer(true);
+            _ui.ShowReward();
+            return;
+        }
+        AwaitingReward = false;
+        _ui.HideReward();
+        Time.timeScale = 1;
+    }
+
+    public bool SwapRewardCartridges(int first, int second)
+    {
+        if (!AwaitingReward || first < 0 || second < 0 || first >= Drum.MaxBullets || second >= Drum.MaxBullets)
+        {
+            return false;
+        }
+        Drum.SwapCartridges(first, second);
+        return true;
     }
     public void Lose()
     {

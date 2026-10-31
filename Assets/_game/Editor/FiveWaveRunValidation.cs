@@ -34,7 +34,7 @@ public static class FiveWaveRunValidation
     private static void ValidateRules()
     {
         int[] groupCounts = { 3, 4, 5, 10, 15 };
-        int[] groupSizes = { 6, 5, 4, 5, 8 };
+        int[] groupSizes = { 3, 5, 4, 5, 8 };
         int totalEnemies = 0;
         for (int wave = 1; wave <= 5; wave++)
         {
@@ -74,7 +74,7 @@ public static class FiveWaveRunValidation
                 totalEnemies += health.Length;
             }
         }
-        Require(totalEnemies == 228, "Expected 228 enemies in the full run");
+        Require(totalEnemies == 219, "Expected 219 enemies in the full run");
 
         HashSet<int> moduleSlots = new HashSet<int>();
         UnityEngine.Random.State randomState = UnityEngine.Random.state;
@@ -93,7 +93,7 @@ public static class FiveWaveRunValidation
         Enemy prefab = AssetDatabase.LoadAssetAtPath<Enemy>("Assets/_game/Prefabs/Enemy.prefab");
         float speed = new SerializedObject(prefab).FindProperty("_speed").floatValue;
         Require(Mathf.Approximately(speed, 1.6f), "Expected enemy movement slowed by 20 percent");
-        Debug.Log("FIVE_WAVE_RULES_PASSED: 37 groups, 228 enemies, common starter loadouts");
+        Debug.Log("FIVE_WAVE_RULES_PASSED: 37 groups, 219 enemies, common starter loadouts");
     }
 
     private static void ValidateStarter(BulletContainer drum)
@@ -156,7 +156,7 @@ public static class FiveWaveRunValidation
             }
             if (_stage == 1)
             {
-                if (G.Enemies.Count < 6 || G.EnemySpawner.IsSpawning)
+                if (G.Enemies.Count < 3 || G.EnemySpawner.IsSpawning)
                 {
                     return;
                 }
