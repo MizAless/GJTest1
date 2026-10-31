@@ -88,6 +88,28 @@ public class CartridgeVisual : MonoBehaviour
         SetLayer(_tipShadow, _tipSprite, tint);
     }
 
+    public void SetPreviewSpin(float phase, float amount)
+    {
+        SetSpin(_casing, phase, amount);
+        SetSpin(_tip, phase, amount * 0.35f);
+    }
+
+    private void SetSpin(MeshRenderer renderer, float phase, float amount)
+    {
+        if (renderer == null)
+        {
+            return;
+        }
+        if (_properties == null)
+        {
+            _properties = new MaterialPropertyBlock();
+        }
+        renderer.GetPropertyBlock(_properties);
+        _properties.SetFloat("_SpinPhase", phase);
+        _properties.SetFloat("_SpinAmount", amount);
+        renderer.SetPropertyBlock(_properties);
+    }
+
     public void RefreshTextures()
     {
         SetLayer(_casing, _casingSprite, Color.white);
