@@ -42,6 +42,10 @@ public class BulletContainer : MonoBehaviour
     }
     public void SwapCartridges(int a, int b)
     {
+        if (a != b)
+        {
+            GameAudio.Play(SoundCue.Swap);
+        }
         var old = Cartridges[a]; Cartridges[a] = Cartridges[b]; Cartridges[b] = old; Rebuild();
     }
     public IEnumerable<AmmoItem> Layers(int i)
@@ -88,6 +92,7 @@ public class BulletContainer : MonoBehaviour
     {
         if (IsReloading) yield break;
         IsReloading = true;
+        GameAudio.Play(SoundCue.Reload, transform.position);
         yield return new WaitForSeconds(_reloadTime);
         Rebuild(); IsReloading = false;
     }

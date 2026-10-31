@@ -1,0 +1,207 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2b19d2dafad4869ae376c92a9a789d8, type: 3}
+  m_Name: GameAudioBank
+  m_EditorClassIdentifier: 
+  MasterVolume: 0.72
+  VoicePoolSize: 28
+  Sounds:
+  - Cue: 0
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: ae7d4d6f52864590bd895fa7e7c8dd62, type: 3}
+    - {fileID: 8300000, guid: 9e5fa1bc5d7f49b381695b34751770b8, type: 3}
+    - {fileID: 8300000, guid: 3b67018cfaed4c42935e2accd55e8b66, type: 3}
+    - {fileID: 8300000, guid: f6052c4badd6492181e28f566f9759d1, type: 3}
+    - {fileID: 8300000, guid: 545b14aa26de4315b7a633856e609501, type: 3}
+    Volume: 0.4
+    Pitch: {x: 0.95, y: 1.04}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.045
+    MaximumVoices: 3
+    Priority: 100
+  - Cue: 1
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: 764710ca9c114999be0b8334172db015, type: 3}
+    - {fileID: 8300000, guid: 568d1fab068f4c80a7c5f0ac658d13ae, type: 3}
+    - {fileID: 8300000, guid: fa0dbd020f344f65b6525da8776cc08d, type: 3}
+    Volume: 0.38
+    Pitch: {x: 0.9, y: 1.06}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.09
+    MaximumVoices: 2
+    Priority: 110
+  - Cue: 2
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: c6628aff80a7479394f692b5e6e12128, type: 3}
+    - {fileID: 8300000, guid: eeef4f160498452a9268e21444480143, type: 3}
+    - {fileID: 8300000, guid: 9c8c9944cac1401a9a081d2e492643bd, type: 3}
+    Volume: 0.75
+    Pitch: {x: 0.98, y: 1.02}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.15
+    MaximumVoices: 1
+    Priority: 50
+  - Cue: 3
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: db16958b040f4d89b5ed23aba4b291dd, type: 3}
+    - {fileID: 8300000, guid: ded32c4c7e8f438580172bf0b26a1161, type: 3}
+    - {fileID: 8300000, guid: 93373d3f491248d09a527e5937b13ae9, type: 3}
+    Volume: 0.4
+    Pitch: {x: 0.94, y: 1.06}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.09
+    MaximumVoices: 2
+    Priority: 80
+  - Cue: 4
+    Bus: 2
+    Clips:
+    - {fileID: 8300000, guid: 4af5560cd78640238897da60796bd18f, type: 3}
+    - {fileID: 8300000, guid: 20c161cf203d4c9bb79f8abd572aff00, type: 3}
+    - {fileID: 8300000, guid: b9f2b3a4f0b141d7a1614e19edd1b8cc, type: 3}
+    Volume: 0.26
+    Pitch: {x: 0.98, y: 1.04}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.07
+    MaximumVoices: 1
+    Priority: 70
+  - Cue: 5
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: b326ea7e1b14480b80a6adc0927a10e5, type: 3}
+    - {fileID: 8300000, guid: da613fcc601847cc98bf7c800a9ac812, type: 3}
+    - {fileID: 8300000, guid: af2dd3c706b54db7a28a05b5b2b5f84d, type: 3}
+    - {fileID: 8300000, guid: 9c8db13089874d68ab9d9eed52c532a4, type: 3}
+    Volume: 0.22
+    Pitch: {x: 0.92, y: 1.08}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.025
+    MaximumVoices: 4
+    Priority: 150
+  - Cue: 6
+    Bus: 3
+    Clips:
+    - {fileID: 8300000, guid: 42ec6e8626d54a8ab0b99463f9855132, type: 3}
+    - {fileID: 8300000, guid: 2ebea67a6955425e9fa0a4cb40b65134, type: 3}
+    - {fileID: 8300000, guid: 7faa7d61e3264de69ffe0276413eee06, type: 3}
+    - {fileID: 8300000, guid: 5a79f5f6aa754881a072eedd22a16ef0, type: 3}
+    Volume: 0.18
+    Pitch: {x: 0.94, y: 1.06}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.22
+    MaximumVoices: 2
+    Priority: 160
+  - Cue: 7
+    Bus: 3
+    Clips:
+    - {fileID: 8300000, guid: fc8c06858d524d8db33020d33d66a5ce, type: 3}
+    - {fileID: 8300000, guid: 4da19af537254703989645ed7841a4cf, type: 3}
+    - {fileID: 8300000, guid: adc14afc1a254735a736639d234ba891, type: 3}
+    - {fileID: 8300000, guid: 876f223940b342b898f03c573ef61daf, type: 3}
+    Volume: 0.27
+    Pitch: {x: 0.94, y: 1.06}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.07
+    MaximumVoices: 3
+    Priority: 120
+  - Cue: 8
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: b853aad14a734b69a0c17d3461aaab6b, type: 3}
+    - {fileID: 8300000, guid: e1b9e9279262412e989756334d68515e, type: 3}
+    - {fileID: 8300000, guid: cb7ded2bf4ba4df8a2702cbb2c5b764a, type: 3}
+    - {fileID: 8300000, guid: d9e4df0c051b44baa880173ab30f08d2, type: 3}
+    Volume: 0.18
+    Pitch: {x: 0.94, y: 1.1}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.05
+    MaximumVoices: 3
+    Priority: 140
+  - Cue: 9
+    Bus: 0
+    Clips:
+    - {fileID: 8300000, guid: 65288344d178436dbf13a465dd64abd5, type: 3}
+    - {fileID: 8300000, guid: 415c2dcffbb448128155ea9f55871632, type: 3}
+    - {fileID: 8300000, guid: a0dbe30b13bf4b6fb6dcbbde00ba981b, type: 3}
+    - {fileID: 8300000, guid: 541d36f2f61945bfbddcce14f2e643f3, type: 3}
+    Volume: 0.6
+    Pitch: {x: 0.96, y: 1.04}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.15
+    MaximumVoices: 1
+    Priority: 35
+  - Cue: 10
+    Bus: 3
+    Clips:
+    - {fileID: 8300000, guid: ec361d9e64d34f0a9bb1162cf309aded, type: 3}
+    - {fileID: 8300000, guid: 6c316b6d19e0402cade04a4ffad476ea, type: 3}
+    - {fileID: 8300000, guid: 098e8b90e04b4d319da5af207684cc6f, type: 3}
+    - {fileID: 8300000, guid: f2adf7231c794cbfbb1099ca180bb7d4, type: 3}
+    Volume: 0.55
+    Pitch: {x: 0.98, y: 1.02}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.4
+    MaximumVoices: 1
+    Priority: 30
+  - Cue: 11
+    Bus: 3
+    Clips:
+    - {fileID: 8300000, guid: 9db07e0ac7b94f9d89ddf5b9f2f1f10f, type: 3}
+    Volume: 0.6
+    Pitch: {x: 1, y: 1}
+    VolumeVariation: 0.06
+    MinimumInterval: 1
+    MaximumVoices: 1
+    Priority: 10
+  - Cue: 12
+    Bus: 4
+    Clips:
+    - {fileID: 8300000, guid: c632d4f166f24e9baa21a0f0b7cf53f1, type: 3}
+    Volume: 0.55
+    Pitch: {x: 1, y: 1}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.5
+    MaximumVoices: 1
+    Priority: 25
+  - Cue: 13
+    Bus: 4
+    Clips:
+    - {fileID: 8300000, guid: 8698c8c2c7d7438ca5317e51cb1bef25, type: 3}
+    Volume: 0.6
+    Pitch: {x: 1, y: 1}
+    VolumeVariation: 0.06
+    MinimumInterval: 1
+    MaximumVoices: 1
+    Priority: 5
+  - Cue: 14
+    Bus: 4
+    Clips:
+    - {fileID: 8300000, guid: be36dd781e6e4bf1ac2e3ab3ee2dae24, type: 3}
+    Volume: 0.55
+    Pitch: {x: 1, y: 1}
+    VolumeVariation: 0.06
+    MinimumInterval: 1
+    MaximumVoices: 1
+    Priority: 5
+  - Cue: 15
+    Bus: 1
+    Clips:
+    - {fileID: 8300000, guid: 6c8af19e0c6245278d5f8ca1905d2ed8, type: 3}
+    Volume: 0.32
+    Pitch: {x: 0.98, y: 1.02}
+    VolumeVariation: 0.06
+    MinimumInterval: 0.4
+    MaximumVoices: 1
+    Priority: 80

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Звуки прототипа</title>
+<style>
+body{margin:0;background:#16130f;color:#eee6d5;font:16px system-ui,sans-serif}main{max-width:1080px;margin:48px auto;padding:0 24px}h1{font-size:34px;margin-bottom:8px}p{color:#bdb39d;line-height:1.6}section{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:30px 0}article{background:#242018;border:1px solid #50442d;padding:20px;border-radius:6px}h2{font-size:20px;margin:0 0 6px}article p{font-size:14px;min-height:45px}audio,select{width:100%;margin-top:12px}select{background:#332c20;color:#eee6d5;border:1px solid #67583c;padding:8px}small{color:#bcb096}
+</style>
+<main><h1>Звуковой проход прототипа</h1><p>Прослушивание подготовленных WAV. В игре уровни событий ниже и дополнительно варьируются питч и громкость. Здесь громкость проигрывателей — 50%. При запуске следующего предыдущий останавливается.</p><section id="sounds"></section><small>Исходники и лицензии: Assets/ThirdParty/PrototypeAudio/README.md. Эти файлы обработаны обычными DSP-фильтрами; нейросинтез не использовался.</small></main>
+<script>
+const cues = [
+ ['Shot',5,'Выстрел','Разные выстрелы револьвера, короткий хвост и плотное низкое тело.'],
+ ['Explosion',3,'Взрыв','Короткий удар, низкий слой и быстро уходящий хвост.'],
+ ['Bandolier',3,'Патронташ','Рывок ткани, кожа, приглушённое бряканье и низкие удары по столу.'],
+ ['Swap',3,'Перестановка','Короткий шорох-свиш с тихим металлическим акцентом.'],
+ ['Select',3,'Выбор','Тихий щелчок и лёгкое движение ткани.'],
+ ['Hit',4,'Попадание по врагу','Короткий мясистый удар, отдельный от голоса.'],
+ ['EnemyPain',4,'Реакция врага','Короткий приглушённый стон. В игре ограничен по частоте.'],
+ ['EnemyDeath',4,'Смерть врага','Затухающее рычание и небольшой низкий удар.'],
+ ['Ricochet',4,'Рикошет','Короткий металлический звон с ограниченным верхом.'],
+ ['HeroImpact',4,'Удар по герою','Более близкий и плотный физический удар.'],
+ ['HeroPain',4,'Боль героя','Отдельная голосовая реакция.'],
+ ['HeroDeath',1,'Смерть героя','Замедленная затухающая реакция и тихая ткань.'],
+ ['Reload',1,'Перезарядка','Механика, движение металла и завершающий щелчок.'],
+ ['WaveWin',1,'Волна пройдена','Короткая восходящая тональная последовательность.'],
+ ['GameWin',1,'Победа','Расширенный вариант победной последовательности.'],
+ ['Defeat',1,'Поражение','Нисходящий негромкий финал, в игре после звука смерти.']
+];
+for (const [prefix,count,title,description] of cues) {
+ const card=document.createElement('article');
+ const heading=document.createElement('h2'); heading.textContent=title;card.append(heading);
+ const detail=document.createElement('p');detail.textContent=description;card.append(detail);
+ const select=document.createElement('select');
+ for(let n=1;n<=count;n++){const option=document.createElement('option');option.value=n;option.textContent='Вариант '+n;select.append(option)}
+ const player=document.createElement('audio');player.controls=true;player.preload='none';player.volume=.5;
+ const update=()=>player.src='../../Assets/_game/Resources/Audio/Clips/'+prefix+'_'+select.value+'.wav';
+ select.addEventListener('change',update);update();
+ player.addEventListener('play',()=>{for(const other of document.querySelectorAll('audio'))if(other!==player)other.pause()});
+ card.append(select,player);document.getElementById('sounds').append(card);
+}
+</script>
+</html>

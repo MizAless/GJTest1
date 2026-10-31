@@ -42,7 +42,13 @@ public class Bullet : MonoBehaviour
         if(_bounces>0)
         {
             var next=Shooter.Nearest(position,_visited);
-            if(next!=null) { _bounces--; ChangeDirection(next.transform.position-transform.position); return; }
+            if (next != null)
+            {
+                _bounces--;
+                GameAudio.Play(SoundCue.Ricochet, position);
+                ChangeDirection(next.transform.position - transform.position);
+                return;
+            }
         }
         Finish();
     }

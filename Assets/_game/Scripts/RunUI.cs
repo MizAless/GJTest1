@@ -14,6 +14,7 @@ public class RunUI : MonoBehaviour
     Font _font;
     RectTransform _root, _modal;
     Text _round, _note, _detailText;
+    private Text _heroHealth;
     GameObject _detail;
     private BandolierUpgradeScreen _upgradeScreen;
     public BandolierUpgradeScreen UpgradeScreen => _upgradeScreen;
@@ -32,6 +33,8 @@ public class RunUI : MonoBehaviour
         var scaler=go.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize; scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
         var top=PanelRect(_root,"Round status",20,16,1240,60,Panel);
         _round=Label(top,"Round",16,6,800,26,20); _note=Label(top,"Feedback",16,32,1200,22,14);
+        _heroHealth = Label(top, "Hero health", 985, 6, 235, 26, 18);
+        _heroHealth.alignment = TextAnchor.MiddleRight;
         for (int i = 0; i < 6; i++)
         {
             int index = i;
@@ -109,6 +112,29 @@ public class RunUI : MonoBehaviour
         });
         TextOf(restart, "Новый забег · R", Gold);
     }
+    public void ShowDefeat()
+    {
+        _upgradeScreen.Close();
+        TooltipPresenter.For(_canvas).HideAll();
+        _detail.SetActive(false);
+        _modal.gameObject.SetActive(true);
+        foreach (Transform child in _modal)
+        {
+            child.gameObject.SetActive(false);
+        }
+
+        Text title = Label(_modal, "Defeat", 140, 200, 1000, 130, 42);
+        title.text = "ПОРАЖЕНИЕ\nГерой пал";
+        title.alignment = TextAnchor.MiddleCenter;
+        title.color = new Color(1, 0.48f, 0.38f);
+        Button restart = MakeButton(_modal, "Restart after defeat", 440, 430, 400, 65, () =>
+        {
+            Time.timeScale = 1;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        });
+        TextOf(restart, "Новый забег · R", Gold);
+    }
+
     void Inspect(int slot)
     {
         if(_run.AwaitingReward) return;
@@ -126,9 +152,18 @@ public class RunUI : MonoBehaviour
     void Update() { if(_run!=null) Refresh(); }
     void Refresh()
     {
+        if (_run.PlayerHealth != null)
+        {
+            _heroHealth.text = "Здоровье " + _run.PlayerHealth.Health.ToString("0") + " / " + _run.PlayerHealth.MaximumHealth.ToString("0");
+            _heroHealth.color = _run.PlayerHealth.Health <= 30 ? new Color(1, 0.4f, 0.3f) : Color.white;
+        }
         if (_run.Victory)
         {
             _round.text = "Победа";
+        }
+        else if (_run.Defeated)
+        {
+            _round.text = "Поражение";
         }
         else if (_run.AwaitingReward)
         {

@@ -29,6 +29,7 @@ public sealed class UpgradeSelection
             return;
         }
         Offer = Offer == index ? -1 : index;
+        GameAudio.Play(SoundCue.Select);
         AwaitingConfirmation = Offer >= 0 && Slot >= 0;
         Changed?.Invoke();
     }
@@ -41,11 +42,13 @@ public sealed class UpgradeSelection
         }
         if (Offer >= 0)
         {
+            GameAudio.Play(SoundCue.Select);
             Slot = index;
             AwaitingConfirmation = true;
         }
         else if (Slot < 0)
         {
+            GameAudio.Play(SoundCue.Select);
             Slot = index;
         }
         else if (Slot == index)

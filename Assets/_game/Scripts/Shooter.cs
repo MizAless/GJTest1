@@ -138,6 +138,7 @@ public class Shooter : MonoBehaviour
     }
     void OnShoot(Vector3 direction)
     {
+        GameAudio.Play(SoundCue.Shot, transform.position);
         if (Camera.main != null)
         {
             Camera.main.transform.DOKill(true);
