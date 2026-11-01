@@ -11,32 +11,7 @@ public class UpgradePresentationAssets : ScriptableObject
 
     public void ApplyAmmo(CartridgeVisual visual, AmmoItem item)
     {
-        int index = 0;
-        AmmoProperties properties = item.Properties;
-        if (properties.Puncture > 0)
-        {
-            index = 1;
-        }
-        else if (properties.Burn > 0)
-        {
-            index = 2;
-        }
-        else if (properties.Chill > 0)
-        {
-            index = 3;
-        }
-        else if (properties.Ricochet > 0)
-        {
-            index = 4;
-        }
-        else if (properties.Fan > 0)
-        {
-            index = 5;
-        }
-        else if (properties.Burst > 0)
-        {
-            index = 6;
-        }
+        int index = item.Archetype == null ? 0 : item.Archetype.VisualIndex;
         visual.SetSprites(CartridgePrefab.CasingSprite, TipSprites[index], TipWidths[index]);
     }
 

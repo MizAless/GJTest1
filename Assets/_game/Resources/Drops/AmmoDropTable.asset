@@ -511,3 +511,364 @@ MonoBehaviour:
     ForModules: 1
     MinimumRarity: 1
     MaximumRarity: 3
+  Archetypes:
+  - Name: Обычная пуля
+    Weight: 100
+    AllowStarter: 1
+    VisualIndex: 0
+    IntrinsicDescription:
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 0
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Игла-пуля
+    Weight: 100
+    AllowStarter: 1
+    VisualIndex: 1
+    IntrinsicDescription: При попадании накладывает +1 прокол.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 1
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 0
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Пуля-лава
+    Weight: 100
+    AllowStarter: 1
+    VisualIndex: 2
+    IntrinsicDescription: При попадании накладывает +1 поджог.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 1
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 0
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Ледяная пуля
+    Weight: 100
+    AllowStarter: 1
+    VisualIndex: 3
+    IntrinsicDescription: При попадании накладывает +1 холод.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 1
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 0
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Рикошетная пуля
+    Weight: 100
+    AllowStarter: 1
+    VisualIndex: 4
+    IntrinsicDescription: +2 к рикошету.
+    SelfProperties:
+      Ricochet: 2
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 0
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Разгонная пуля
+    Weight: 100
+    AllowStarter: 0
+    VisualIndex: 6
+    IntrinsicDescription: При перезарядке даёт +2 к очереди следующей пуле. Не усиливает себя.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 1
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 2
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Расширяющая пуля
+    Weight: 100
+    AllowStarter: 0
+    VisualIndex: 5
+    IntrinsicDescription: При перезарядке даёт +2 к вееру следующей пуле. Не усиливает себя.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 1
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 2
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Проводящая пуля
+    Weight: 100
+    AllowStarter: 0
+    VisualIndex: 7
+    IntrinsicDescription: При перезарядке даёт +1 к рикошету следующей пуле. Не усиливает себя.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 1
+    TriggerProperties:
+      Ricochet: 1
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+  - Name: Связывающая пуля
+    Weight: 100
+    AllowStarter: 0
+    VisualIndex: 8
+    IntrinsicDescription: При перезарядке повторяет врождённый триггер предыдущей пули.
+    SelfProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0
+    IntrinsicTrigger: 5
+    TriggerProperties:
+      Ricochet: 0
+      Pierce: 0
+      Fan: 0
+      Burst: 0
+      Split: 0
+      Burn: 0
+      Chill: 0
+      Bleed: 0
+      Poison: 0
+      Puncture: 0
+      Overload: 0
+      More: 0
+      ProjectileMore: 0
+      DotMore: 0
+      AreaMore: 0
+      AfflictedMore: 0

@@ -5,6 +5,13 @@ using UnityEngine;
 
 public static class AmmoDropValidation
 {
+    public static void RunIntegrated()
+    {
+        ValidateIntrinsics(Resources.Load<AmmoDropTable>(AmmoDropTable.ResourcePath));
+        Debug.Log("AMMO_INTRINSIC_VALIDATION_PASSED: cartridge types, separate tooltip, owner/recipient effects and both triggers");
+        FiveWaveRunValidation.Run();
+    }
+
     public static void Run()
     {
         UnityEngine.Random.State originalState = UnityEngine.Random.state;
@@ -15,6 +22,7 @@ public static class AmmoDropValidation
             AmmoDropTable actual = Resources.Load<AmmoDropTable>(AmmoDropTable.ResourcePath);
             Require(actual != null && actual.Properties.Count == 16 && actual.Triggers.Count == 10,
                 "Default table must contain every existing property and trigger.");
+            ValidateIntrinsics(actual);
             for (int index = 0; index < 500; index++)
             {
                 foreach (bool module in new[] { false, true })
@@ -115,6 +123,69 @@ public static class AmmoDropValidation
     private static AmmoPropertyDrop Property(AmmoPropertyKind kind, float weight)
     {
         return new AmmoPropertyDrop { Property = kind, Weight = weight };
+    }
+
+    private static void ValidateIntrinsics(AmmoDropTable table)
+    {
+        Require(table.Archetypes.Count >= 6, "Default cartridge types are missing.");
+        HashSet<int> seen = new HashSet<int>();
+        for (int index = 0; index < 500; index++)
+        {
+            AmmoItem cartridge = AmmoGenerator.Generate(table, false);
+            Require(cartridge.Archetype != null, "Cartridge has no type.");
+            Require(AmmoGenerator.Generate(table, true).Archetype == null, "Module rolled a cartridge intrinsic.");
+            seen.Add(cartridge.Archetype.VisualIndex);
+        }
+        Require(seen.Count == table.Archetypes.Count, "Some default types never appear.");
+        GameObject root = new GameObject("Intrinsic validation drum");
+        try
+        {
+            BulletContainer drum = root.AddComponent<BulletContainer>();
+            drum.Init();
+            for (int slot = 0; slot < drum.MaxBullets; slot++)
+            {
+                drum.Cartridges[slot] = AmmoItem.Ordinary();
+                drum.Sockets[slot] = null;
+            }
+            AmmoArchetype needle = table.Archetypes.Find(entry => entry.VisualIndex == 1);
+            AmmoItem item = new AmmoItem
+            {
+                Name = needle.Name, Archetype = needle,
+                Properties = new AmmoProperties { Burn = 2 }
+            };
+            drum.Cartridges[0] = item;
+            drum.Rebuild();
+            Require(drum.Profiles[0].Properties.Puncture == 1 && drum.Profiles[0].Properties.Burn == 2,
+                "Intrinsic and rolled affixes must both contribute to combat.");
+            TooltipContent tooltip = AmmoTooltipContent.Create(item);
+            Require(tooltip.Intrinsic == needle.IntrinsicDescription && tooltip.Properties.Length == 1
+                && tooltip.Properties[0].Contains("2"), "Tooltip did not separate intrinsic and affixes.");
+            AmmoArchetype accelerator = table.Archetypes.Find(entry => entry.VisualIndex == 6);
+            drum.Cartridges[0] = new AmmoItem
+            {
+                Archetype = accelerator,
+                Properties = new AmmoProperties { Pierce = 1 },
+                Trigger = AmmoTrigger.ReloadNext
+            };
+            drum.Rebuild();
+            Require(drum.Profiles[0].Properties.Burst == 0 && drum.Profiles[1].Properties.Burst == 2,
+                "Accelerator must grant burst only to the next cartridge.");
+            Require(drum.Profiles[1].Properties.Pierce == 1,
+                "Additional trigger must coexist with intrinsic trigger.");
+            drum.Rebuild();
+            Require(drum.Profiles[1].Properties.Burst == 2, "Reload must not accumulate intrinsic grants.");
+            drum.Cartridges[1] = new AmmoItem
+            {
+                Archetype = table.Archetypes.Find(entry => entry.VisualIndex == 8)
+            };
+            drum.Rebuild();
+            Require(drum.Profiles[1].Properties.Burst == 4 && drum.Profiles[1].Properties.Pierce == 1,
+                "Linking must repeat the previous intrinsic without duplicating its additional trigger.");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(root);
+        }
     }
 
     private static AmmoPropertyTier Tier(float weight, float value)

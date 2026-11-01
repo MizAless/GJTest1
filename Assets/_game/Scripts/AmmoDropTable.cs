@@ -94,6 +94,8 @@ public sealed class AmmoTriggerDrop
 public sealed class AmmoDropTable : ScriptableObject
 {
     public const string ResourcePath = "Drops/AmmoDropTable";
+    [Tooltip("Cartridge types, their fixed intrinsic and art. Modules never roll a cartridge type.")]
+    public List<AmmoArchetype> Archetypes = new List<AmmoArchetype>();
     [Tooltip("Relative rarity weights, property counts and optional trigger chances.")]
     public List<AmmoRarityDrop> Rarities = new List<AmmoRarityDrop>();
     [Tooltip("Choose a property by Weight, then an eligible tier by its own Weight. Zero disables an entry.")]

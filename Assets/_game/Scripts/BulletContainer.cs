@@ -50,7 +50,14 @@ public class BulletContainer : MonoBehaviour
     }
     public IEnumerable<AmmoItem> Layers(int i)
     {
-        yield return Cartridges[i]; if (Sockets[i] != null) yield return Sockets[i];
+        foreach (AmmoItem layer in Cartridges[i].CombatLayers())
+        {
+            yield return layer;
+        }
+        if (Sockets[i] != null)
+        {
+            yield return Sockets[i];
+        }
     }
     public int Next(int n) => (n + MaxBullets) % MaxBullets;
     public IEnumerable<int> Destinations(int i, AmmoTrigger trigger)
@@ -67,20 +74,54 @@ public class BulletContainer : MonoBehaviour
     public void Rebuild()
     {
         Used = 0; Profiles = new CombatProfile[MaxBullets];
-        for (int i = 0; i < MaxBullets; i++) { Profiles[i] = new CombatProfile(); foreach (var l in Layers(i)) Profiles[i].Apply(l.Properties); }
-        for (int i = 0; i < MaxBullets; i++) foreach (var l in Layers(i))
+        for (int slot = 0; slot < MaxBullets; slot++)
         {
-            if (l.Trigger == AmmoTrigger.ReloadRepeat)
+            Profiles[slot] = new CombatProfile();
+            foreach (AmmoItem layer in Layers(slot))
             {
-                int previous = Next(i-1); Transferred?.Invoke(i,previous);
-                foreach (var original in Layers(previous))
-                    if (original.Trigger >= AmmoTrigger.ReloadNext && original.Trigger <= AmmoTrigger.ReloadAll)
-                        foreach (int target in Destinations(previous,original.Trigger)) Grant(previous,target,original);
+                if (!layer.IsTriggerPayload)
+                {
+                    Profiles[slot].Apply(layer.Properties);
+                }
             }
-            else if (l.Trigger >= AmmoTrigger.ReloadNext && l.Trigger <= AmmoTrigger.ReloadAll)
-                foreach (int target in Destinations(i,l.Trigger)) Grant(i,target,l);
+        }
+        for (int slot = 0; slot < MaxBullets; slot++)
+        {
+            foreach (AmmoItem layer in Layers(slot))
+            {
+                if (layer.Trigger == AmmoTrigger.ReloadRepeat)
+                {
+                    int previous = Next(slot - 1);
+                    Transferred?.Invoke(slot, previous);
+                    foreach (AmmoItem original in Layers(previous))
+                    {
+                        // The linking type repeats an intrinsic, while a rolled repeat
+                        // keeps its existing ability to repeat additional triggers too.
+                        if (!layer.IsTriggerPayload || original.IsTriggerPayload)
+                        {
+                            ApplyReloadTrigger(previous, original);
+                        }
+                    }
+                }
+                else
+                {
+                    ApplyReloadTrigger(slot, layer);
+                }
+            }
         }
         Reloaded?.Invoke();
+    }
+
+    private void ApplyReloadTrigger(int source, AmmoItem layer)
+    {
+        if (layer.Trigger < AmmoTrigger.ReloadNext || layer.Trigger > AmmoTrigger.ReloadAll)
+        {
+            return;
+        }
+        foreach (int target in Destinations(source, layer.Trigger))
+        {
+            Grant(source, target, layer);
+        }
     }
     public bool BeginShot(out int slot)
     {

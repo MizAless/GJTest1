@@ -34,11 +34,47 @@ public class AmmoProperties
 [Serializable]
 public class AmmoItem
 {
+    public AmmoArchetype Archetype;
+    // Trigger payloads affect recipients only, never the supporting cartridge itself.
+    public bool IsTriggerPayload;
     public string Name;
     public BulletRarity Rarity;
     public AmmoProperties Properties = new AmmoProperties();
     public AmmoTrigger Trigger;
-    public string Description => Properties.Description() + (Trigger == AmmoTrigger.None ? "" : "\n\n" + TriggerName(Trigger));
+    public IEnumerable<AmmoItem> CombatLayers()
+    {
+        yield return this;
+        if (Archetype == null)
+        {
+            yield break;
+        }
+        yield return new AmmoItem { Properties = Archetype.SelfProperties };
+        if (Archetype.IntrinsicTrigger != AmmoTrigger.None)
+        {
+            yield return new AmmoItem
+            {
+                Properties = Archetype.TriggerProperties,
+                Trigger = Archetype.IntrinsicTrigger,
+                IsTriggerPayload = true
+            };
+        }
+    }
+    public string Description
+    {
+        get
+        {
+            string description = Properties.Description();
+            if (!string.IsNullOrWhiteSpace(Archetype?.IntrinsicDescription))
+            {
+                description = Archetype.IntrinsicDescription + "\n\n" + description;
+            }
+            if (Trigger != AmmoTrigger.None)
+            {
+                description += "\n\n" + TriggerName(Trigger);
+            }
+            return description;
+        }
+    }
     public static string TriggerName(AmmoTrigger trigger)
     {
         switch (trigger)

@@ -28,6 +28,15 @@ public static class AmmoGenerator
             throw new InvalidOperationException("Ammo drop table has no eligible rarity with positive weight.");
         }
         AmmoItem item = new AmmoItem { Rarity = rarity.Rarity };
+        if (!module && table.Archetypes.Count > 0)
+        {
+            item.Archetype = AmmoDropTable.Pick(table.Archetypes,
+                entry => !starter || entry.AllowStarter ? entry.Weight : 0);
+            if (item.Archetype == null)
+            {
+                throw new InvalidOperationException("Ammo drop table has no eligible cartridge type.");
+            }
+        }
         HashSet<AmmoPropertyKind> used = new HashSet<AmmoPropertyKind>();
         int count = starter ? 1 : Mathf.Max(1, rarity.PropertyCount);
         for (int index = 0; index < count; index++)
@@ -58,7 +67,9 @@ public static class AmmoGenerator
                 item.Trigger = trigger.Trigger;
             }
         }
-        item.Name = (module ? "Модуль: " : "Патрон: ") + item.Properties.Description().Split('\n')[0];
+        item.Name = item.Archetype != null
+            ? item.Archetype.Name
+            : (module ? "Модуль: " : "Патрон: ") + item.Properties.Description().Split('\n')[0];
         return item;
     }
 

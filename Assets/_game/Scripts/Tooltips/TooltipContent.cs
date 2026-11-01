@@ -14,7 +14,7 @@ public class TooltipContent
     public string[] Triggers = Array.Empty<string>();
 }
 
-// The current combat model has no separate intrinsic field. Callers may supply it explicitly.
+// Intrinsics are provided by the cartridge type; rolled affixes stay in their own section.
 public static class AmmoTooltipContent
 {
     public static TooltipContent Create(AmmoItem item, AmmoItem module = null, string intrinsic = null)
@@ -39,7 +39,7 @@ public static class AmmoTooltipContent
             Subtitle = AmmoItem.RarityName(item.Rarity),
             Accent = AmmoItem.RarityColor(item.Rarity),
             Tags = tags.ToArray(),
-            Intrinsic = intrinsic,
+            Intrinsic = intrinsic ?? item.Archetype?.IntrinsicDescription,
             Properties = properties.ToArray(),
             Triggers = triggers.ToArray()
         };
@@ -48,6 +48,16 @@ public static class AmmoTooltipContent
     private static void AddItem(AmmoItem item, string prefix, List<string> tags,
         List<string> properties, List<string> triggers)
     {
+        if (item.Archetype != null)
+        {
+            foreach (string tag in item.Archetype.SelfProperties.Tags().Split(new[] { " · " }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (!tags.Contains(tag))
+                {
+                    tags.Add(tag);
+                }
+            }
+        }
         if (item.Properties != null)
         {
             foreach (string tag in item.Properties.Tags().Split(new[] { " · " }, StringSplitOptions.RemoveEmptyEntries))
