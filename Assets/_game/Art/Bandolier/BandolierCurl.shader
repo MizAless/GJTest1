@@ -5,6 +5,10 @@ Shader "Game/Bandolier Curl"
         _MainTex ("Layer texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
         _BackColor ("Leather underside", Color) = (.78,.63,.48,1)
+        _PlainBack ("Unadorned leather back", Float) = 0
+        _InteriorOnly ("Hide layer on exterior", Float) = 0
+        _SurfaceOffset ("Attachment surface depth", Float) = 0
+        _ImpactYScale ("Attachment vertical impact scale", Float) = 1
         _Progress ("Unrolled", Range(0,1)) = 1
         _Width ("Sheet width", Float) = 12.6
         _Radius ("Roll radius", Float) = .78
@@ -36,6 +40,7 @@ Shader "Game/Bandolier Curl"
             fixed4 _Color, _BackColor;
             float _Progress, _Width, _Radius, _Thickness, _AnchorX, _Rigid, _BendAngle, _Shadow, _Gesture, _ImpactStrength;
             float _SpinPhase, _SpinAmount;
+            float _PlainBack, _InteriorOnly, _SurfaceOffset, _ImpactYScale;
             struct appdata { float4 vertex:POSITION; float2 uv:TEXCOORD0; };
             struct v2f { float4 vertex:SV_POSITION; float2 uv:TEXCOORD0; float angle:TEXCOORD1; };
             float3 slap(float x)
@@ -54,12 +59,14 @@ Shader "Game/Bandolier Curl"
                 v2f o; float3 p=v.vertex.xyz; float angle=_BendAngle;
                 if (_Rigid < .5)
                 {
+                    p.z += _SurfaceOffset;
                     p.x += _AnchorX;
                     float front=saturate(_Progress)*_Width;
                     float d=p.x+_Width*.5-front;
                     angle=0;
                     float originalX=p.x;
                     float3 impact=slap(originalX);
+                    impact.y *= _ImpactYScale;
                     if (d > 0)
                     {
                         float radius=min(_Radius,max(.04,(_Width-front)/4.2));
@@ -86,6 +93,13 @@ Shader "Game/Bandolier Curl"
             {
                 fixed4 c=tex2D(_MainTex,i.uv)*_Color;
                 clip(c.a-.09);
+                if (facing < 0 && _InteriorOnly > .5) clip(-1);
+                if (facing < 0 && _PlainBack > .5)
+                {
+                    // Sample undecorated grain from the sheet's center, keeping the outer silhouette.
+                    float2 backUV=float2(.35,.35)+i.uv*.3;
+                    c.rgb=tex2D(_MainTex,backUV).rgb*_BackColor.rgb*_Color.rgb;
+                }
                 if (_Rigid > .5 && _SpinAmount > .001)
                 {
                     // Move surface marks and a cylindrical highlight while preserving the sprite silhouette.
@@ -105,7 +119,7 @@ Shader "Game/Bandolier Curl"
                 float light=.32+.68*sqrt(abs(cos(i.angle)));
                 light+=.12*pow(abs(cos(i.angle+.45)),18);
                 // The back is an unprinted, darker leather surface; cartridges stay metallic.
-                if (facing < 0 && _Rigid < .5) c.rgb=lerp(c.rgb,c.rgb*_BackColor.rgb,.85);
+                if (facing < 0 && _Rigid < .5 && _PlainBack < .5) c.rgb=lerp(c.rgb,c.rgb*_BackColor.rgb,.85);
                 c.rgb*=light;
                 return c;
             }

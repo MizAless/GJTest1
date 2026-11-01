@@ -20,6 +20,7 @@ public class UpgradePresentation : MonoBehaviour
     private int _textureWidth;
     private int _textureHeight;
     private MaterialPropertyBlock _clipProperties;
+    private Mesh _moduleSurfaceMesh;
 
     public BandolierPreview Bandolier => _bandolier;
     public Camera Camera => _camera;
@@ -49,12 +50,13 @@ public class UpgradePresentation : MonoBehaviour
         _camera.farClipPlane = 50;
         GameObject bandolier = Instantiate(_assets.BandolierPrefab, transform);
         _bandolier = bandolier.GetComponent<BandolierPreview>();
+        _moduleSurfaceMesh = _assets.CreateModuleSurfaceMesh();
         _cartridges = new CartridgeVisual[6];
         for (int index = 0; index < _cartridges.Length; index++)
         {
             _cartridges[index] = _bandolier.GetCartridge(index).GetComponent<CartridgeVisual>();
-            _slotClips[index] = _assets.CreateClip(_cartridges[index].transform.parent, "Module clip " + index);
-            _slotClips[index].transform.localPosition = new Vector3(-4.25f + index * 1.7f, -0.1f, -0.3f);
+            _slotClips[index] = _assets.CreateClip(_cartridges[index].transform.parent, "Module clip " + index, _moduleSurfaceMesh);
+            _bandolier.UpdateModuleAttachment(_slotClips[index], index);
         }
         for (int index = 0; index < 3; index++)
         {
@@ -106,6 +108,7 @@ public class UpgradePresentation : MonoBehaviour
     public void RenderNow(int width = 0, int height = 0)
     {
         Resize(width, height);
+        UpdateModuleAttachments();
         _camera.Render();
     }
 
@@ -134,7 +137,20 @@ public class UpgradePresentation : MonoBehaviour
             float target = _selection.Slot == index && _selection.Offer < 0 ? 1 : 0;
             _liftAmounts[index] = Mathf.Lerp(_liftAmounts[index], target, blend);
             _bandolier.SetSlotLift(index, _liftAmounts[index]);
-            _slotClips[index].enabled = _run.Drum.Sockets[index] != null && _bandolier.Progress > 0.99f;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        UpdateModuleAttachments();
+    }
+
+    private void UpdateModuleAttachments()
+    {
+        for (int index = 0; index < _slotClips.Length; index++)
+        {
+            _slotClips[index].enabled = _run.Drum.Sockets[index] != null;
+            _bandolier.UpdateModuleAttachment(_slotClips[index], index);
         }
     }
 
@@ -207,5 +223,9 @@ public class UpgradePresentation : MonoBehaviour
     private void OnDestroy()
     {
         ReleaseTexture();
+        if (_moduleSurfaceMesh != null)
+        {
+            Destroy(_moduleSurfaceMesh);
+        }
     }
 }

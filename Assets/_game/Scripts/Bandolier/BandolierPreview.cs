@@ -46,6 +46,28 @@ public class BandolierPreview : MonoBehaviour
     private MeshRenderer[][] _cartridgeLayers;
     private MeshRenderer[][] _shadowLayers;
     private readonly float[] _slotLift = new float[6];
+    private float[] _loopMeshDepths;
+
+    public void UpdateModuleAttachment(MeshRenderer renderer, int index)
+    {
+        if (_loops == null || index < 0 || index >= _loops.Length || _loops[index] == null)
+        {
+            renderer.enabled = false;
+            return;
+        }
+
+        if (_loopMeshDepths == null || _loopMeshDepths.Length != _loops.Length)
+        {
+            RefreshCartridgeLayers();
+        }
+        Transform loop = _loops[index].transform;
+        renderer.transform.localPosition = loop.localPosition;
+        renderer.transform.localRotation = Quaternion.identity;
+        renderer.transform.localScale = new Vector3(loop.localScale.x, 1, 1);
+        float depth = _loopMeshDepths[index] * loop.localScale.z - 0.025f;
+        ApplyLayerProperties(renderer, anchorX: GetSlotX(index), surfaceOffset: depth,
+            impactYScale: loop.localScale.y, interiorOnly: true);
+    }
 
     public void SetSlotLift(int index, float amount)
     {
@@ -301,7 +323,10 @@ public class BandolierPreview : MonoBehaviour
         float anchorX = 0,
         bool isGroundShadow = false,
         bool isRigid = false,
-        Color? tint = null)
+        Color? tint = null,
+        float surfaceOffset = 0,
+        float impactYScale = 1,
+        bool interiorOnly = false)
     {
         if (renderer == null)
         {
@@ -325,6 +350,10 @@ public class BandolierPreview : MonoBehaviour
         _layerProperties.SetFloat("_Rigid", isRigid ? 1 : 0);
         _layerProperties.SetFloat("_Gesture", _timeline);
         _layerProperties.SetFloat("_ImpactStrength", _impactStrength);
+        _layerProperties.SetFloat("_PlainBack", renderer == _base ? 1 : 0);
+        _layerProperties.SetFloat("_InteriorOnly", interiorOnly ? 1 : 0);
+        _layerProperties.SetFloat("_SurfaceOffset", surfaceOffset);
+        _layerProperties.SetFloat("_ImpactYScale", impactYScale);
 
         if (tint.HasValue)
         {
@@ -377,7 +406,7 @@ public class BandolierPreview : MonoBehaviour
 
         for (int index = 0; index < _loops.Length; index++)
         {
-            ApplyLayerProperties(_loops[index], anchorX: GetSlotX(index));
+            ApplyLayerProperties(_loops[index], anchorX: GetSlotX(index), interiorOnly: true);
         }
     }
 
@@ -473,6 +502,20 @@ public class BandolierPreview : MonoBehaviour
     // Cache once when assembling the hierarchy; playback must not allocate arrays each frame.
     public void RefreshCartridgeLayers()
     {
+        int loopCount = _loops == null ? 0 : _loops.Length;
+        _loopMeshDepths = new float[loopCount];
+        for (int index = 0; index < loopCount; index++)
+        {
+            if (_loops[index] == null)
+            {
+                continue;
+            }
+            Mesh mesh = _loops[index].GetComponent<MeshFilter>().sharedMesh;
+            if (mesh != null && mesh.vertexCount > 0)
+            {
+                _loopMeshDepths[index] = mesh.vertices[0].z;
+            }
+        }
         int count = CartridgeCount;
         _cartridgeLayers = new MeshRenderer[count][];
         _shadowLayers = new MeshRenderer[count][];
