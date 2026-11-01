@@ -1,0 +1,513 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 712d5fff85934fc9a1a5c36a445fa0a2, type: 3}
+  m_Name: AmmoDropTable
+  m_EditorClassIdentifier:
+  Rarities:
+  - Rarity: 0
+    Weight: 55
+    PropertyCount: 1
+    TriggerChance: 0
+  - Rarity: 1
+    Weight: 30
+    PropertyCount: 2
+    TriggerChance: 0.55
+  - Rarity: 2
+    Weight: 12
+    PropertyCount: 3
+    TriggerChance: 0.55
+  - Rarity: 3
+    Weight: 3
+    PropertyCount: 4
+    TriggerChance: 0.55
+  Properties:
+  - Name: Ricochet
+    Property: 0
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Pierce
+    Property: 1
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Fan
+    Property: 2
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Burst
+    Property: 3
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Split
+    Property: 4
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+  - Name: Burn
+    Property: 5
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Chill
+    Property: 6
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Bleed
+    Property: 7
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Poison
+    Property: 8
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Puncture
+    Property: 9
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 1
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 1
+      MinimumValue: 1
+      MaximumValue: 1
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 2
+      MaximumValue: 2
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 3
+      MaximumValue: 3
+  - Name: Overload
+    Property: 10
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 0
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 1
+      MaximumValue: 1
+  - Name: More
+    Property: 11
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 0
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 25
+      MaximumValue: 25
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 50
+      MaximumValue: 50
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 75
+      MaximumValue: 75
+  - Name: ProjectileMore
+    Property: 12
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 0
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 50
+      MaximumValue: 50
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 100
+      MaximumValue: 100
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 150
+      MaximumValue: 150
+  - Name: DotMore
+    Property: 13
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 0
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 50
+      MaximumValue: 50
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 100
+      MaximumValue: 100
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 150
+      MaximumValue: 150
+  - Name: AreaMore
+    Property: 14
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 0
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 50
+      MaximumValue: 50
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 100
+      MaximumValue: 100
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 150
+      MaximumValue: 150
+  - Name: AfflictedMore
+    Property: 15
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    AllowStarter: 0
+    Tiers:
+    - Name: T1
+      Weight: 70
+      MinimumRarity: 0
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 50
+      MaximumValue: 50
+    - Name: T2
+      Weight: 25
+      MinimumRarity: 1
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 100
+      MaximumValue: 100
+    - Name: T3
+      Weight: 5
+      MinimumRarity: 2
+      MaximumRarity: 3
+      AllowStarter: 0
+      MinimumValue: 150
+      MaximumValue: 150
+  Triggers:
+  - Trigger: 1
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 2
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 3
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 4
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 5
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 6
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 7
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 8
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 9
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
+  - Trigger: 10
+    Weight: 100
+    ForCartridges: 1
+    ForModules: 1
+    MinimumRarity: 1
+    MaximumRarity: 3
