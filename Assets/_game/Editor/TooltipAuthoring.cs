@@ -192,7 +192,6 @@ public static class TooltipAuthoring
 
     private static Text IntrinsicSection(Transform parent)
     {
-        Color accent = new Color(0.76f, 0.85f, 0.77f);
         RectTransform block = Rect(parent, "Intrinsic");
         Image background = block.gameObject.AddComponent<Image>();
         background.color = new Color(0.10f, 0.15f, 0.12f, 1);
@@ -201,11 +200,7 @@ public static class TooltipAuthoring
         layout.padding = new RectOffset(12, 12, 10, 10);
         layout.spacing = 6;
 
-        Text heading = Label(block, "Heading", "ВРОЖДЁННОЕ СВОЙСТВО", 13, accent);
-        heading.fontStyle = FontStyle.Bold;
         Text value = Label(block, "Content", "", 18, Paper);
-        Label(block, "Immutable hint", "Закреплено за типом пули · не изменяется", 12,
-            new Color(0.58f, 0.68f, 0.61f));
         return value;
     }
 

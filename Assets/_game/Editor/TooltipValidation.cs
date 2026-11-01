@@ -136,9 +136,9 @@ public static class TooltipValidation
         Assert(tagCount == presenter.View.GetComponentsInChildren<LayoutElement>(true).Length, "Tags must reuse their pool.");
         Text[] labels = presenter.View.GetComponentsInChildren<Text>();
         Assert(labels.Any(label => label.text == content.Intrinsic), "Intrinsic missing.");
-        Assert(labels.Any(label => label.text == "ВРОЖДЁННОЕ СВОЙСТВО"), "Intrinsic heading missing.");
-        Assert(labels.Any(label => label.text == "Закреплено за типом пули · не изменяется"),
-            "Intrinsic must explain its immutable origin.");
+        Assert(!labels.Any(label => label.text == "ВРОЖДЁННОЕ СВОЙСТВО"
+            || label.text == "Закреплено за типом пули · не изменяется"),
+            "Intrinsic must not repeat information conveyed by its separate block.");
         Transform intrinsicBlock = presenter.View.transform.Find("Intrinsic");
         Assert(intrinsicBlock != null && intrinsicBlock.GetComponent<Image>() != null,
             "Intrinsic must have a separate background.");
