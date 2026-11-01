@@ -61,7 +61,7 @@ public static class TooltipAuthoring
         tagText.horizontalOverflow = HorizontalWrapMode.Overflow;
         tagTemplate.gameObject.SetActive(false);
 
-        Text intrinsic = Section(root, "Intrinsic", "СОБСТВЕННОЕ СВОЙСТВО", new Color(0.62f, 0.81f, 0.80f));
+        Text intrinsic = IntrinsicSection(root);
         Text properties = Section(root, "Properties", "СВОЙСТВА", Gold);
         Text triggers = Section(root, "Triggers", "ТРИГГЕРЫ", new Color(0.77f, 0.67f, 0.88f));
         TooltipView view = root.gameObject.AddComponent<TooltipView>();
@@ -188,6 +188,25 @@ public static class TooltipAuthoring
 
         trigger.SetContent(content);
         EditorUtility.SetDirty(trigger);
+    }
+
+    private static Text IntrinsicSection(Transform parent)
+    {
+        Color accent = new Color(0.76f, 0.85f, 0.77f);
+        RectTransform block = Rect(parent, "Intrinsic");
+        Image background = block.gameObject.AddComponent<Image>();
+        background.color = new Color(0.10f, 0.15f, 0.12f, 1);
+        background.raycastTarget = false;
+        VerticalLayoutGroup layout = Vertical(block);
+        layout.padding = new RectOffset(12, 12, 10, 10);
+        layout.spacing = 6;
+
+        Text heading = Label(block, "Heading", "ВРОЖДЁННОЕ СВОЙСТВО", 13, accent);
+        heading.fontStyle = FontStyle.Bold;
+        Text value = Label(block, "Content", "", 18, Paper);
+        Label(block, "Immutable hint", "Закреплено за типом пули · не изменяется", 12,
+            new Color(0.58f, 0.68f, 0.61f));
+        return value;
     }
 
     private static Text Section(Transform parent, string name, string heading, Color accent)

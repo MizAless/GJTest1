@@ -70,7 +70,8 @@ public static class TooltipValidation
             }
 
             TooltipTrigger[] targets = Object.FindObjectsByType<TooltipTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            Assert(targets.Length == 15, "RunUI must expose six HUD slots, three rewards and six installation slots.");
+            Assert(targets.Count(target => target.name.StartsWith("Socket ")) == 6,
+                "RunUI must expose six HUD cartridge tooltips.");
             TooltipTrigger socket = targets.First(target => target.name == "Socket 1");
             socket.OnPointerEnter(new PointerEventData(EventSystem.current) { position = Input.mousePosition });
             TooltipPresenter presenter = TooltipPresenter.For(socket.GetComponentInParent<Canvas>());
@@ -78,7 +79,7 @@ public static class TooltipValidation
             Assert(presenter.View.GetComponentsInChildren<Text>().Any(label => label.text == RunDirector.Instance.Drum.Cartridges[0].Name), "HUD tooltip has the wrong cartridge.");
             socket.OnPointerExit(null);
             Assert(!presenter.IsVisible, "Actual game HUD did not hide the tooltip.");
-            File.AppendAllText("Artifacts/tooltip-validation.txt", " Game scene: all 15 targets, actual cartridge data and hover enter/exit passed.");
+            File.AppendAllText("Artifacts/tooltip-validation.txt", " Game scene: six HUD slots, actual cartridge data and hover enter/exit passed.");
             Debug.Log("TOOLTIP_GAME_UI_VALIDATION_PASSED");
             EditorApplication.update -= Check;
             EditorApplication.playModeStateChanged += ExitAfterPlayMode;
@@ -135,6 +136,12 @@ public static class TooltipValidation
         Assert(tagCount == presenter.View.GetComponentsInChildren<LayoutElement>(true).Length, "Tags must reuse their pool.");
         Text[] labels = presenter.View.GetComponentsInChildren<Text>();
         Assert(labels.Any(label => label.text == content.Intrinsic), "Intrinsic missing.");
+        Assert(labels.Any(label => label.text == "ВРОЖДЁННОЕ СВОЙСТВО"), "Intrinsic heading missing.");
+        Assert(labels.Any(label => label.text == "Закреплено за типом пули · не изменяется"),
+            "Intrinsic must explain its immutable origin.");
+        Transform intrinsicBlock = presenter.View.transform.Find("Intrinsic");
+        Assert(intrinsicBlock != null && intrinsicBlock.GetComponent<Image>() != null,
+            "Intrinsic must have a separate background.");
         Assert(labels.Any(label => label.text == content.Triggers[0]), "Trigger missing.");
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current)
