@@ -192,7 +192,7 @@ public class RunUI : MonoBehaviour
         {
             if(enemy==null||!enemy.IsAlive) continue;
             if(!_labels.TryGetValue(enemy,out var label)) {label=Label(_root,"Enemy health",0,0,240,42,12);label.alignment=TextAnchor.MiddleCenter;_labels[enemy]=label;label.transform.SetAsFirstSibling();}
-            Vector3 screen=Camera.main.WorldToScreenPoint(enemy.transform.position+Vector3.up*(enemy.MaxHealth>=80?1.2f:.8f));
+            Vector3 screen=Camera.main.WorldToScreenPoint(enemy.AimPosition + Vector3.up * (StaticShooterStage.Instance != null ? 1.8f * enemy.transform.localScale.y : 0.8f));
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_root,screen,null,out var local);
             var r=label.rectTransform;r.anchorMin=r.anchorMax=r.pivot=new Vector2(.5f,.5f);r.anchoredPosition=local;
             label.text=enemy.Kind+" "+enemy.Health.ToString("0.#")+" / "+enemy.MaxHealth.ToString("0")+"\n"+enemy.StatusSummary;

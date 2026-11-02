@@ -108,23 +108,37 @@ public class Shooter : MonoBehaviour
     {
         for (int repeat = 0; repeat <= profile.Properties.Burst; repeat++)
         {
-            var target = GetNearestEnemy();
+            StaticShooterStage stage = StaticShooterStage.Instance;
+            Vector3 origin = stage != null ? stage.ShotOrigin : transform.position;
             Vector3 direction;
-            if (target != null) direction = target.transform.position-transform.position;
+            if (stage != null)
+            {
+                direction = stage.GetShotDirection();
+            }
             else
             {
-                var camera = Camera.main; var mouse = Input.mousePosition;
-                mouse.z = transform.position.z-camera.transform.position.z;
-                direction = camera.ScreenToWorldPoint(mouse)-transform.position;
+                Enemy target = GetNearestEnemy();
+                Vector3 mouse = Input.mousePosition;
+                mouse.z = -Camera.main.transform.position.z;
+                Vector3 aim = target != null ? target.transform.position : Camera.main.ScreenToWorldPoint(mouse);
+                direction = aim - origin;
             }
-            direction.z=0; if(direction.sqrMagnitude<.001f) direction=Vector3.right;
+            if (stage == null)
+            {
+                direction.z = 0;
+            }
+            if (direction.sqrMagnitude < 0.001f)
+            {
+                direction = stage == null ? Vector3.right : Vector3.forward;
+            }
             direction.Normalize();
             int count = 1 + profile.Properties.Fan;
             for(int n=0;n<count;n++)
             {
                 float angle = (n-(count-1)*.5f)*12f;
-                Vector3 ray = Quaternion.Euler(0,0,angle)*direction;
-                SpawnProjectile(context,profile,transform.position,ray,new HashSet<int>());
+                Vector3 axis = stage != null ? Vector3.up : Vector3.forward;
+                Vector3 ray = Quaternion.AngleAxis(angle, axis) * direction;
+                SpawnProjectile(context,profile,origin,ray,new HashSet<int>());
             }
             OnShoot(direction);
             if (repeat < profile.Properties.Burst) yield return new WaitForSeconds(.09f);
@@ -139,7 +153,15 @@ public class Shooter : MonoBehaviour
     void OnShoot(Vector3 direction)
     {
         GameAudio.Play(SoundCue.Shot, transform.position);
-        if (Camera.main != null)
+        if (StaticShooterStage.Instance != null)
+        {
+            StaticShooterStage.Instance.Recoil();
+            if (_shootVFX != null)
+            {
+                _shootVFX.transform.position = StaticShooterStage.Instance.ShotOrigin;
+            }
+        }
+        if (Camera.main != null && StaticShooterStage.Instance == null)
         {
             Camera.main.transform.DOKill(true);
             Camera.main.transform.DOPunchPosition(Vector3.one*.055f,.13f,12,1);

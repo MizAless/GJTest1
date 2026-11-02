@@ -45,8 +45,19 @@ public class EnemySpawner : MonoBehaviour
             float angle = (baseAngle + (column - (columns - 1) * 0.5f) * ColumnAngle) * Mathf.Deg2Rad;
             Vector3 direction = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0);
             Vector3 position = origin + direction * (frontRadius + row * RowSpacing);
+            if (StaticShooterStage.Instance != null)
+            {
+                // Three advancing files, with depth-separated rows for piercing shots.
+                int lane = index % 3;
+                position = new Vector3(-6.5f + lane * 6.5f + Random.Range(-0.4f, 0.4f),
+                    0, 19 + index / 3 * 3.5f);
+            }
             Enemy enemy = Instantiate(_enemyPrefab, position, Quaternion.identity);
             enemy.Configure(health[index]);
+            if (StaticShooterStage.Instance != null)
+            {
+                enemy.gameObject.AddComponent<ApproachingEnemyVisual>();
+            }
             G.Enemies.Add(enemy);
             yield return new WaitForSeconds(Mathf.Min(_spawnTime, 0.2f));
         }

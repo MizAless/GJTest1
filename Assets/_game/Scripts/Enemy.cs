@@ -12,6 +12,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] float _maxHealth = 30;
     public float Health { get; private set; }
     public float MaxHealth => _maxHealth;
+    public Vector3 AimPosition => StaticShooterStage.Instance == null
+        ? transform.position
+        : transform.position + Vector3.up * (1.4f * transform.localScale.y);
     public bool IsAlive => !_dead && Health > 0;
     public int Cold { get; private set; }
     public int Punctures { get; private set; }
@@ -86,6 +89,10 @@ public class Enemy : MonoBehaviour
         if (RunDirector.Instance == null || !RunDirector.Instance.CombatActive || _player == null) return;
         TryContactAttack();
         float speed = Frozen ? 0 : _speed * Mathf.Max(.25f,1-Cold*.15f) * (_maxHealth >= 80 ? .65f : 1);
+        if (StaticShooterStage.Instance != null)
+        {
+            _knockback.y = 0;
+        }
         if (Vector3.Distance(transform.position,_player.position) > .65f)
             transform.position = Vector3.MoveTowards(transform.position,_player.position,speed*Time.deltaTime);
         transform.position += _knockback * Time.deltaTime; _knockback = Vector3.Lerp(_knockback,Vector3.zero,12*Time.deltaTime);
@@ -364,10 +371,10 @@ public class Enemy : MonoBehaviour
         Health = Mathf.Max(0,Health-amount);
         UpdateHealthBar();
         _flashUntil = Time.time + .11f; _knockback += direction.normalized * 1.8f;
-        if (RunUI.Instance != null) RunUI.Instance.Damage(transform.position,amount,color);
+        if (RunUI.Instance != null) RunUI.Instance.Damage(AimPosition,amount,color);
         if (_hitVFX != null)
         {
-            var hit = Instantiate(_hitVFX,transform.position,Quaternion.identity);
+            var hit = Instantiate(_hitVFX,AimPosition,Quaternion.identity);
             hit.Play(true); Destroy(hit.gameObject,1);
         }
         if (Health <= 0) Die();
@@ -378,6 +385,10 @@ public class Enemy : MonoBehaviour
         GameAudio.Play(SoundCue.EnemyDeath, transform.position);
         G.Enemies.Remove(this);
         foreach (var c in GetComponents<Collider2D>()) c.enabled = false;
+        foreach (Collider collider in GetComponentsInChildren<Collider>())
+        {
+            collider.enabled = false;
+        }
         if (_onDeadVFX != null) { var fx=Instantiate(_onDeadVFX,transform.position,Quaternion.identity); fx.Play(true); Destroy(fx.gameObject,2); }
         Destroy(gameObject);
     }
