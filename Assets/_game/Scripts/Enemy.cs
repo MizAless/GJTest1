@@ -9,6 +9,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float _speed = 4.8f;
     [SerializeField] ParticleSystem _onDeadVFX;
     [SerializeField] ParticleSystem _hitVFX;
+    [SerializeField] private ParticleSystem _hitBlood3D;
+    [SerializeField] private ParticleSystem _deathBlood3D;
     [SerializeField] float _maxHealth = 30;
     public float Health { get; private set; }
     public float MaxHealth => _maxHealth;
@@ -377,11 +379,14 @@ public class Enemy : MonoBehaviour
         UpdateHealthBar();
         _flashUntil = Time.time + .11f; _knockback += direction.normalized * 1.8f;
         if (RunUI.Instance != null) RunUI.Instance.Damage(AimPosition,amount,color);
-        if (_hitVFX != null)
+        ParticleSystem hitPrefab = StaticShooterStage.Instance != null && _hitBlood3D != null ? _hitBlood3D : _hitVFX;
+        if (hitPrefab != null)
         {
-            var hit = Instantiate(_hitVFX,AimPosition,Quaternion.identity);
+            var hit = Instantiate(hitPrefab,AimPosition,Quaternion.identity);
             PerspectiveEffects.Prepare(hit, AimPosition, 1.7f);
-            hit.Play(true); Destroy(hit.gameObject,1);
+            hit.Play(true);
+            PhysicalBlood blood = hit.GetComponent<PhysicalBlood>();
+            Destroy(hit.gameObject, blood != null ? blood.CleanupDelay : 1);
         }
         if (Health <= 0) Die();
     }
@@ -395,7 +400,15 @@ public class Enemy : MonoBehaviour
         {
             collider.enabled = false;
         }
-        if (_onDeadVFX != null) { var fx=Instantiate(_onDeadVFX,transform.position,Quaternion.identity); PerspectiveEffects.Prepare(fx, AimPosition, 1.5f); fx.Play(true); Destroy(fx.gameObject,2); }
+        ParticleSystem deathPrefab = StaticShooterStage.Instance != null && _deathBlood3D != null ? _deathBlood3D : _onDeadVFX;
+        if (deathPrefab != null)
+        {
+            ParticleSystem effect = Instantiate(deathPrefab, AimPosition, Quaternion.identity);
+            PerspectiveEffects.Prepare(effect, AimPosition, 1.5f);
+            effect.Play(true);
+            PhysicalBlood blood = effect.GetComponent<PhysicalBlood>();
+            Destroy(effect.gameObject, blood != null ? blood.CleanupDelay : 2);
+        }
         Destroy(gameObject);
     }
     void OnDestroy() { G.Enemies.Remove(this); }

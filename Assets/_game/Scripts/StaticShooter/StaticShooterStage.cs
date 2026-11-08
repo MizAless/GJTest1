@@ -13,6 +13,7 @@ public sealed class StaticShooterStage : MonoBehaviour
     private Transform _hero;
     private RevolverVisual _weapon;
     private Vector2 _look;
+    public Transform GroundSurface { get; private set; }
     public bool AutoAim => _autoAim;
     public Sprite EnemySprite => _art.Enemy;
     public Vector3 ShotOrigin => _weapon.Muzzle.position;
@@ -66,6 +67,7 @@ public sealed class StaticShooterStage : MonoBehaviour
             ground.transform.SetParent(transform, false);
             ground.transform.position = new Vector3(0, -0.02f, 40);
             ground.transform.localScale = new Vector3(12, 1, 12);
+            GroundSurface = ground.transform;
             ground.GetComponent<Renderer>().sharedMaterial = _art.GroundMaterial;
             Destroy(ground.GetComponent<Collider>());
         }
@@ -74,6 +76,9 @@ public sealed class StaticShooterStage : MonoBehaviour
             SpriteRenderer ground = CreateSprite("Courtyard ground", _art.Ground,
                 new Vector3(0, -0.05f, 40), new Vector2(100, 120), -290);
             ground.transform.rotation = Quaternion.Euler(90, 0, 0);
+            GroundSurface = new GameObject("Blood collision plane").transform;
+            GroundSurface.SetParent(transform, false);
+            GroundSurface.position = ground.transform.position;
         }
         CreateSprite("Side ruins", _art.SideRuins, new Vector3(0, 12.1f, 23), new Vector2(43, 24.2f), -200);
         CreateSprite("Near barrels and fence", _art.Foreground, new Vector3(0, 6.47f, 2), new Vector2(23, 12.94f), 190);
