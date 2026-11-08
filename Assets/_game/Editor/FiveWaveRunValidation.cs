@@ -92,7 +92,7 @@ public static class FiveWaveRunValidation
         Require(moduleSlots.Count == 6, "Starter module slot is not randomized");
         Enemy prefab = AssetDatabase.LoadAssetAtPath<Enemy>("Assets/_game/Prefabs/Enemy.prefab");
         float speed = new SerializedObject(prefab).FindProperty("_speed").floatValue;
-        Require(Mathf.Approximately(speed, 1.6f), "Expected enemy movement slowed by 20 percent");
+        Require(Mathf.Approximately(speed, 4.8f), "Expected enemy movement at triple prototype speed");
         Debug.Log("FIVE_WAVE_RULES_PASSED: 37 groups, 219 enemies, common starter loadouts");
     }
 
@@ -206,7 +206,7 @@ public static class FiveWaveRunValidation
                 Require(_rewards == 8, "Expected eight rewards between five waves");
                 Require(VisitedGroups.Count == 37, "Not all groups were played");
                 Require(_sawBoss, "Final boss did not appear");
-                Debug.Log("FIVE_WAVE_RUN_VALIDATION_PASSED: 5 waves, 37 sequential groups, 8 rewards, real piercing");
+                Debug.Log("FIVE_WAVE_RUN_VALIDATION_PASSED: 5 waves, 37 timed groups, 8 rewards, real piercing");
                 Finish(0);
                 return;
             }
@@ -216,7 +216,6 @@ public static class FiveWaveRunValidation
                 string group = run.Round + ":" + run.Pack;
                 if (group != _currentGroup)
                 {
-                    Require(_previousGroup.All(enemy => enemy == null || !enemy.IsAlive), "Groups overlapped");
                     _currentGroup = group;
                     VisitedGroups.Add(group);
                     _previousGroup = new Enemy[0];

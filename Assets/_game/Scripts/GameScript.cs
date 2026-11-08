@@ -4,6 +4,30 @@ public class GameScript
 {
     public const int WaveCount = 5;
 
+    public static float GroupCooldown(int wave, int group)
+    {
+        int groupsBeforeWave = 0;
+        int totalGroups = 0;
+        for (int index = 1; index <= WaveCount; index++)
+        {
+            int count = Round(index).Length;
+            if (index < wave)
+            {
+                groupsBeforeWave += count;
+            }
+            totalGroups += count;
+        }
+        int groupCount = Round(wave).Length;
+        if (group < 0 || group >= groupCount)
+        {
+            throw new ArgumentOutOfRangeException(nameof(group));
+        }
+        const float firstCooldown = 5f;
+        const float lastCooldown = 2f;
+        float progress = (float)(groupsBeforeWave + group) / (totalGroups - 1);
+        return firstCooldown + (lastCooldown - firstCooldown) * progress;
+    }
+
     public static int[][] Round(int number)
     {
         int[][] groups;

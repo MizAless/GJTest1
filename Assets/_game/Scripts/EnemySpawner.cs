@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -11,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
     private const float ColumnAngle = 14f;
     private int _spawnedGroups;
     public bool IsSpawning { get; private set; }
-    public IEnumerator SpawnPack(int[] health)
+    public IEnumerator SpawnPack(int[] health, List<Enemy> members = null)
     {
         if (IsSpawning)
         {
@@ -59,7 +60,11 @@ public class EnemySpawner : MonoBehaviour
                 enemy.gameObject.AddComponent<ApproachingEnemyVisual>();
             }
             G.Enemies.Add(enemy);
-            yield return new WaitForSeconds(Mathf.Min(_spawnTime, 0.2f));
+            members?.Add(enemy);
+            if (index < health.Length - 1)
+            {
+                yield return new WaitForSeconds(Mathf.Min(_spawnTime, 0.2f));
+            }
         }
         IsSpawning = false;
     }

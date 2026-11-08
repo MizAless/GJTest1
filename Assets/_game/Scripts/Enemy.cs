@@ -6,7 +6,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] Transform _player;
-    [SerializeField] float _speed = 1.6f;
+    [SerializeField] private float _speed = 4.8f;
     [SerializeField] ParticleSystem _onDeadVFX;
     [SerializeField] ParticleSystem _hitVFX;
     [SerializeField] float _maxHealth = 30;
