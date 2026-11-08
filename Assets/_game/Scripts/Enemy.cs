@@ -361,7 +361,7 @@ public class Enemy : MonoBehaviour
         _healthBar.transform.localScale = new Vector3(fraction, 1, 1);
         // Compensate the centered sprite pivot so only its right edge moves as health falls.
         float centerOffset = (fraction - 1) * _square.bounds.extents.x;
-        _healthBar.transform.localPosition = new Vector3(centerOffset, 0, 0);
+        _healthBar.transform.localPosition = new Vector3(centerOffset, 0, StaticShooterStage.Instance != null ? -0.015f : 0);
     }
 
     public void TakeDamage() => TakeDamage(10,Color.white,Vector3.zero);
@@ -375,6 +375,7 @@ public class Enemy : MonoBehaviour
         if (_hitVFX != null)
         {
             var hit = Instantiate(_hitVFX,AimPosition,Quaternion.identity);
+            PerspectiveEffects.Prepare(hit, AimPosition, 1.7f);
             hit.Play(true); Destroy(hit.gameObject,1);
         }
         if (Health <= 0) Die();
@@ -389,7 +390,7 @@ public class Enemy : MonoBehaviour
         {
             collider.enabled = false;
         }
-        if (_onDeadVFX != null) { var fx=Instantiate(_onDeadVFX,transform.position,Quaternion.identity); fx.Play(true); Destroy(fx.gameObject,2); }
+        if (_onDeadVFX != null) { var fx=Instantiate(_onDeadVFX,transform.position,Quaternion.identity); PerspectiveEffects.Prepare(fx, AimPosition, 1.5f); fx.Play(true); Destroy(fx.gameObject,2); }
         Destroy(gameObject);
     }
     void OnDestroy() { G.Enemies.Remove(this); }

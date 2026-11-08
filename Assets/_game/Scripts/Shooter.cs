@@ -109,7 +109,7 @@ public class Shooter : MonoBehaviour
         for (int repeat = 0; repeat <= profile.Properties.Burst; repeat++)
         {
             StaticShooterStage stage = StaticShooterStage.Instance;
-            Vector3 origin = stage != null ? stage.ShotOrigin : transform.position;
+
             Vector3 direction;
             if (stage != null)
             {
@@ -121,7 +121,7 @@ public class Shooter : MonoBehaviour
                 Vector3 mouse = Input.mousePosition;
                 mouse.z = -Camera.main.transform.position.z;
                 Vector3 aim = target != null ? target.transform.position : Camera.main.ScreenToWorldPoint(mouse);
-                direction = aim - origin;
+                direction = aim - transform.position;
             }
             if (stage == null)
             {
@@ -132,6 +132,7 @@ public class Shooter : MonoBehaviour
                 direction = stage == null ? Vector3.right : Vector3.forward;
             }
             direction.Normalize();
+            Vector3 origin = stage != null ? stage.ShotOrigin : transform.position;
             int count = 1 + profile.Properties.Fan;
             for(int n=0;n<count;n++)
             {
@@ -166,7 +167,7 @@ public class Shooter : MonoBehaviour
             Camera.main.transform.DOKill(true);
             Camera.main.transform.DOPunchPosition(Vector3.one*.055f,.13f,12,1);
         }
-        if (_shootVFX != null) { _shootVFX.transform.rotation=Quaternion.LookRotation(direction); _shootVFX.Play(); }
+        if (_shootVFX != null && StaticShooterStage.Instance == null) { _shootVFX.transform.rotation=Quaternion.LookRotation(direction); _shootVFX.Play(); }
     }
     void Update()
     {

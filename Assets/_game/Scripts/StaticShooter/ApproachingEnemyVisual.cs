@@ -47,10 +47,14 @@ public sealed class ApproachingEnemyVisual : MonoBehaviour
             _health.localScale = new Vector3(1.4f, 0.055f, 1);
             foreach (SpriteRenderer bar in _health.GetComponentsInChildren<SpriteRenderer>())
             {
-                bar.sortingOrder = _renderer.sortingOrder + 1;
+                bar.sortingOrder = _renderer.sortingOrder + (bar.transform == _health ? 2 : 3);
             }
         }
         float rock = _enemy.Frozen ? 0 : Mathf.Sin(Time.time * 8 + _phase) * 2;
         transform.rotation = Quaternion.Euler(0, 0, rock);
+        if (_health != null && Camera.main != null)
+        {
+            _health.rotation = Camera.main.transform.rotation;
+        }
     }
 }

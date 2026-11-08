@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 [CreateAssetMenu(menuName = "Prototype/Static shooter art")]
 public sealed class StaticShooterArt : ScriptableObject
@@ -11,4 +11,7 @@ public sealed class StaticShooterArt : ScriptableObject
     public Sprite Revolver;
     public Sprite Enemy;
     public Material GroundMaterial;
+    public GameObject HeroPrefab;
+    public RevolverVisual RevolverPrefab;
+    public ProjectileVisual ProjectilePrefab;
 }

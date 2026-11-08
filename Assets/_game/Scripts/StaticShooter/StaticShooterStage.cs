@@ -11,12 +11,13 @@ public sealed class StaticShooterStage : MonoBehaviour
     private Camera _camera;
     private Shooter _shooter;
     private Transform _hero;
-    private Transform _weapon;
+    private RevolverVisual _weapon;
     private Vector2 _look;
-    private float _recoil;
     public bool AutoAim => _autoAim;
     public Sprite EnemySprite => _art.Enemy;
-    public Vector3 ShotOrigin => _weapon.position + _weapon.right * 0.42f;
+    public Vector3 ShotOrigin => _weapon.Muzzle.position;
+    public RevolverVisual Weapon => _weapon;
+    public ProjectileVisual ProjectilePrefab => _art.ProjectilePrefab;
     public Vector3 AimPoint => AimAtScreen(Input.mousePosition);
 
     public Vector3 AimAtScreen(Vector2 screenPosition)
@@ -76,11 +77,10 @@ public sealed class StaticShooterStage : MonoBehaviour
         }
         CreateSprite("Side ruins", _art.SideRuins, new Vector3(0, 12.1f, 23), new Vector2(43, 24.2f), -200);
         CreateSprite("Near barrels and fence", _art.Foreground, new Vector3(0, 6.47f, 2), new Vector2(23, 12.94f), 190);
-        _hero = CreateSprite("Gunslinger", _art.Hero, Vector3.zero, new Vector2(2.27f, 3.4f), 210).transform;
-        _hero.SetParent(_camera.transform, true);
+        _hero = Instantiate(_art.HeroPrefab, _camera.transform).transform;
         _hero.localRotation = Quaternion.identity;
-        _weapon = CreateSprite("Revolver", _art.Revolver, Vector3.zero, new Vector2(0.8f, 0.53f), 220).transform;
-        _weapon.SetParent(_camera.transform, true);
+        GunslingerVisual character = _hero.GetComponent<GunslingerVisual>();
+        _weapon = Instantiate(_art.RevolverPrefab, character.WeaponSocket, false);
         AddSceneryShadow(new Vector3(-10, 0, 16), new Vector2(9, 5));
         AddSceneryShadow(new Vector3(10, 0, 16), new Vector2(9, 5));
         AddSceneryShadow(new Vector3(-7, 0, 2), new Vector2(7, 4));
@@ -128,32 +128,27 @@ public sealed class StaticShooterStage : MonoBehaviour
         // A small real camera translation produces depth-dependent parallax naturally.
         _camera.transform.position = new Vector3(_look.x * 0.65f, 4 + _look.y * 0.22f, -10);
         _hero.position = _camera.ViewportToWorldPoint(new Vector3(0.20f, 0.23f, 4.8f));
-        Vector3 grip = _camera.ViewportToWorldPoint(new Vector3(0.32f, 0.43f, 4.65f));
-        Vector3 aim = AimPoint;
+        Vector3 target = ResolveAimTarget();
+        _weapon.AimAt(target, _camera.transform.up);
+        _weapon.UpdatePose(Time.unscaledDeltaTime);
+    }
+
+    private Vector3 ResolveAimTarget()
+    {
         Enemy nearest = _autoAim ? _shooter.GetNearestEnemy() : null;
-        if (nearest != null)
-        {
-            aim = nearest.AimPosition;
-        }
-        Vector3 targetScreen = _camera.WorldToViewportPoint(aim);
-        float angle = Mathf.Atan2((targetScreen.y - 0.43f) / _camera.aspect,
-            targetScreen.x - 0.32f) * Mathf.Rad2Deg;
-        angle = Mathf.Clamp(angle, -40, 70);
-        _recoil = Mathf.MoveTowards(_recoil, 0, Time.unscaledDeltaTime * 12);
-        _weapon.localRotation = Quaternion.Euler(0, 0, angle + _recoil * 9);
-        _weapon.position = grip - _weapon.right * (_recoil * 0.08f);
+        return nearest != null ? nearest.AimPosition : AimPoint;
     }
 
     public Vector3 GetShotDirection()
     {
-        Enemy nearest = _autoAim ? _shooter.GetNearestEnemy() : null;
-        Vector3 target = nearest != null ? nearest.AimPosition : AimPoint;
+        Vector3 target = ResolveAimTarget();
+        _weapon.AimAt(target, _camera.transform.up);
         return (target - ShotOrigin).normalized;
     }
 
     public void Recoil()
     {
-        _recoil = 1;
+        _weapon.Fire();
     }
 
     private void OnGUI()

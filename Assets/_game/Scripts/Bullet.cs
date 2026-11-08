@@ -16,8 +16,7 @@ public class Bullet : MonoBehaviour
     private bool _destroying;
     private bool _threeDimensional;
     private Vector3 _velocity;
-    private LineRenderer _tracer;
-    private static Material _tracerMaterial;
+    private ProjectileVisual _visual;
 
     private void Awake()
     {
@@ -39,7 +38,7 @@ public class Bullet : MonoBehaviour
         _bounces = profile.Properties.Ricochet;
         _threeDimensional = StaticShooterStage.Instance != null;
         _expires = Time.time + (_threeDimensional ? 2.5f : 1.2f);
-        _velocity = direction.normalized * (_threeDimensional ? speed * 3 : speed);
+        _velocity = direction.normalized * (_threeDimensional ? speed * 1.4f : speed);
         if (_threeDimensional)
         {
             _body.simulated = false;
@@ -47,6 +46,13 @@ public class Bullet : MonoBehaviour
             if (sprite != null)
             {
                 sprite.enabled = false;
+            }
+            foreach (ParticleSystem effect in _vfxs)
+            {
+                if (effect != null)
+                {
+                    effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
             }
             CreateTracer();
         }
@@ -63,20 +69,8 @@ public class Bullet : MonoBehaviour
 
     private void CreateTracer()
     {
-        if (_tracerMaterial == null)
-        {
-            _tracerMaterial = new Material(Shader.Find("Sprites/Default"));
-        }
-        _tracer = gameObject.AddComponent<LineRenderer>();
-        _tracer.sharedMaterial = _tracerMaterial;
-        _tracer.positionCount = 2;
-        _tracer.startWidth = 0.035f;
-        _tracer.endWidth = 0.015f;
-        _tracer.startColor = _profile.Color;
-        _tracer.endColor = new Color(1, 0.9f, 0.5f, 0);
-        _tracer.sortingOrder = 150;
-        _tracer.SetPosition(0, transform.position);
-        _tracer.SetPosition(1, transform.position);
+        _visual = Instantiate(StaticShooterStage.Instance.ProjectilePrefab, transform, false);
+        _visual.Initialize(_profile);
     }
 
     public void ChangeDirection(Vector3 direction)
@@ -119,8 +113,6 @@ public class Bullet : MonoBehaviour
             }
         }
         transform.position = from + direction * distance;
-        _tracer.SetPosition(0, transform.position);
-        _tracer.SetPosition(1, transform.position - _velocity.normalized * 0.8f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -182,6 +174,10 @@ public class Bullet : MonoBehaviour
             return;
         }
         _destroying = true;
+        if (_visual != null)
+        {
+            _visual.Release();
+        }
         foreach (Collider2D collider in GetComponents<Collider2D>())
         {
             collider.enabled = false;

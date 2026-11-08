@@ -33,3 +33,29 @@ and shadows, then saves `.utmp/Artifacts/static-shooter.png`.
 First-pass limits: one rigid sprite per character (small rocking motion),
 visual weapon rotation rather than skeletal arm animation, no cover geometry
 or navigation around scenery. Scenery is visual; the combat field stays open.
+
+## Combat presentation prefabs
+
+`Prefabs/StaticShooter/Gunslinger.prefab`: body sprite and editable HandSocket.
+`Revolver.prefab`: local +Z is the barrel axis, Muzzle is the shot origin;
+a narrow block and two side sprites replace a full 3D model. Visual recoil is
+separate from the aiming root. Move HandSocket to adjust the grip. The stage
+instantiates the weapon under that socket and aims its root in world space.
+
+`ProjectileVisual.prefab`: camera-facing bright core and glow, colored trail and
+status sparks. Diameter and Minimum Pixels control visibility at distance;
+Trail time/width and particle settings are editable in the prefab. Visual size
+does not increase the collision radius. Speed is 1.4 times the 2D baseline,
+reduced from the old 3x speed. The trail survives impact for its configured time.
+
+HP backgrounds and fills have distinct render orders, a small depth gap and
+camera-facing orientation. Actual HP fraction drives only fill width, with a
+fixed left edge. Hit/death particles and explosions orient to the perspective
+camera and render above enemy sprites; existing color-over-lifetime settings
+are preserved.
+
+Create initial prefabs: CombatReadabilityAuthoring.Build (also called by the
+stage builder). Existing prefabs are retained so Inspector tuning survives.
+Validation: CombatPresentationValidation.Run checks health fractions, anchored
+fill, sorting, socket parenting and actual 3D muzzle alignment, then runs the
+stage's real projectile-hit test and saves a camera render with three colors.

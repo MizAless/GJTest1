@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using UnityEditor;
 using System.Linq;
 using UnityEditor.SceneManagement;
@@ -61,6 +61,7 @@ public static class StaticShooterAuthoring
         enemyImporter.spritePixelsPerUnit = enemy.texture.height / 3.2f;
         enemyImporter.SaveAndReimport();
         BuildGroundMaterial(art);
+        CombatReadabilityAuthoring.Build();
         EditorSceneManager.OpenScene("Assets/_game/Scenes/Game.unity");
         StaticShooterStage stage = Object.FindAnyObjectByType<StaticShooterStage>();
         if (stage == null)
