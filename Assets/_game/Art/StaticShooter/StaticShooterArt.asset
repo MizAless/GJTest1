@@ -21,5 +21,5 @@ MonoBehaviour:
   Enemy: {fileID: 21300000, guid: f4dc4fecd08f4fd487d02b4f3bc81024, type: 3}
   GroundMaterial: {fileID: 2100000, guid: c5f762b2796b8b34d8589f4a59adcb41, type: 2}
   HeroPrefab: {fileID: 7323754236778730655, guid: d7c2f741642e7c345bbbbe33e96e3f70, type: 3}
-  RevolverPrefab: {fileID: 6131964665355522225, guid: 36b76fc56179f7e449d1f05a4a0e3e26, type: 3}
-  ProjectilePrefab: {fileID: 840143629612936829, guid: 14fcd761e3fe7294196c10230fd326a1, type: 3}
+  RevolverPrefab: {fileID: 1757364049256983904, guid: 36b76fc56179f7e449d1f05a4a0e3e26, type: 3}
+  ProjectilePrefab: {fileID: 8311769922777691993, guid: 14fcd761e3fe7294196c10230fd326a1, type: 3}

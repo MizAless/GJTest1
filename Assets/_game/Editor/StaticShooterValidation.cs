@@ -17,6 +17,16 @@ public static class StaticShooterValidation
     public static void Run()
     {
         StaticShooterAuthoring.Build();
+        RunSavedScene();
+    }
+
+    public static void RunSavedScene()
+    {
+        UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/_game/Scenes/Game.unity");
+        StaticShooterArt art = AssetDatabase.LoadAssetAtPath<StaticShooterArt>(StaticShooterAuthoring.ArtAsset);
+        Require(art.HeroPrefab != null && art.HeroPrefab.GetComponent<GunslingerVisual>() != null, "Saved hero prefab is invalid.");
+        Require(art.RevolverPrefab != null && art.RevolverPrefab.GetComponent<RevolverVisual>() != null, "Saved revolver prefab is invalid.");
+        Require(art.ProjectilePrefab != null && art.ProjectilePrefab.GetComponent<ProjectileVisual>() != null, "Saved projectile prefab is invalid.");
         EditorSettings.enterPlayModeOptionsEnabled = true;
         EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload;
         _started = EditorApplication.timeSinceStartup;

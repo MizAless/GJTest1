@@ -48,7 +48,7 @@ public static class CombatPresentationValidation
             Camera camera = Camera.main;
             for (int index = 0; index < 3; index++)
             {
-                ProjectileVisual visual = UnityEngine.Object.Instantiate(art.ProjectilePrefab);
+                ProjectileVisual visual = UnityEngine.Object.Instantiate(art.ProjectilePrefab).GetComponent<ProjectileVisual>();
                 visual.transform.position = camera.ViewportToWorldPoint(new Vector3(0.48f + index * 0.14f, 0.53f, 14));
                 AmmoProperties properties = new AmmoProperties();
                 if (index == 0) properties.Burn = 1;

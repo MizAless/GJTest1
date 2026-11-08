@@ -12,6 +12,6 @@ public sealed class StaticShooterArt : ScriptableObject
     public Sprite Enemy;
     public Material GroundMaterial;
     public GameObject HeroPrefab;
-    public RevolverVisual RevolverPrefab;
-    public ProjectileVisual ProjectilePrefab;
+    public GameObject RevolverPrefab;
+    public GameObject ProjectilePrefab;
 }

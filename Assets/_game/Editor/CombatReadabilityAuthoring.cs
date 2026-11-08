@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,8 +16,8 @@ public static class CombatReadabilityAuthoring
         StaticShooterArt art = AssetDatabase.LoadAssetAtPath<StaticShooterArt>(StaticShooterAuthoring.ArtAsset);
         BuildDisc();
         art.HeroPrefab = BuildHero(art);
-        art.RevolverPrefab = BuildRevolver(art).GetComponent<RevolverVisual>();
-        art.ProjectilePrefab = BuildProjectile().GetComponent<ProjectileVisual>();
+        art.RevolverPrefab = BuildRevolver(art);
+        art.ProjectilePrefab = BuildProjectile();
         EditorUtility.SetDirty(art);
         AssetDatabase.SaveAssets();
     }

@@ -17,7 +17,7 @@ public sealed class StaticShooterStage : MonoBehaviour
     public Sprite EnemySprite => _art.Enemy;
     public Vector3 ShotOrigin => _weapon.Muzzle.position;
     public RevolverVisual Weapon => _weapon;
-    public ProjectileVisual ProjectilePrefab => _art.ProjectilePrefab;
+    public ProjectileVisual ProjectilePrefab => _art.ProjectilePrefab.GetComponent<ProjectileVisual>();
     public Vector3 AimPoint => AimAtScreen(Input.mousePosition);
 
     public Vector3 AimAtScreen(Vector2 screenPosition)
@@ -80,7 +80,7 @@ public sealed class StaticShooterStage : MonoBehaviour
         _hero = Instantiate(_art.HeroPrefab, _camera.transform).transform;
         _hero.localRotation = Quaternion.identity;
         GunslingerVisual character = _hero.GetComponent<GunslingerVisual>();
-        _weapon = Instantiate(_art.RevolverPrefab, character.WeaponSocket, false);
+        _weapon = Instantiate(_art.RevolverPrefab, character.WeaponSocket, false).GetComponent<RevolverVisual>();
         AddSceneryShadow(new Vector3(-10, 0, 16), new Vector2(9, 5));
         AddSceneryShadow(new Vector3(10, 0, 16), new Vector2(9, 5));
         AddSceneryShadow(new Vector3(-7, 0, 2), new Vector2(7, 4));
