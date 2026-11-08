@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RunDirector : MonoBehaviour
@@ -62,17 +63,44 @@ public class RunDirector : MonoBehaviour
         Time.timeScale = 1;
         Drum.Rebuild();
 
+        CombatActive = true;
         for (int group = 0; group < groups.Length; group++)
         {
-            CombatActive = true;
             Pack = group + 1;
-            _ui.Note("Волна " + Round + " · группа " + Pack + " / " + PackCount);
-            yield return _spawner.SpawnPack(groups[group]);
-            // A group must be completely cleared before the next one can spawn.
-            yield return new WaitUntil(() => G.Enemies.Count == 0);
-            CombatActive = false;
-            yield return new WaitUntil(() => !Shooter.IsFiring && !Drum.IsReloading);
-            yield return new WaitForSeconds(0.6f);
+            _ui.Note($"Волна {Round} · группа {Pack} / {PackCount}");
+            float nextGroupTime = Time.time + GameScript.GroupCooldown(wave, group);
+            List<Enemy> members = new List<Enemy>();
+            yield return _spawner.SpawnPack(groups[group], members);
+            if (group < groups.Length - 1)
+            {
+                yield return WaitForNextGroup(members, nextGroupTime);
+            }
+        }
+
+        // Stragglers from any group must be defeated before rewards become available.
+        yield return new WaitUntil(() => G.Enemies.Count == 0);
+        CombatActive = false;
+        yield return new WaitUntil(() => !Shooter.IsFiring && !Drum.IsReloading);
+        yield return new WaitForSeconds(0.6f);
+    }
+
+    private static IEnumerator WaitForNextGroup(List<Enemy> members, float deadline)
+    {
+        const float clearDelay = 0.2f;
+        while (Time.time < deadline)
+        {
+            bool hasSurvivors = members.Exists(enemy => enemy != null && enemy.IsAlive);
+            if (!hasSurvivors)
+            {
+                // A quick clear accelerates this group even if older groups still have survivors.
+                float clearDeadline = Mathf.Min(deadline, Time.time + clearDelay);
+                while (Time.time < clearDeadline)
+                {
+                    yield return null;
+                }
+                yield break;
+            }
+            yield return null;
         }
     }
     void ShowReward(bool module)
