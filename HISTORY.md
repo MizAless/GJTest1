@@ -379,3 +379,5 @@ ProjectileVisual.prefab содержит яркое камерное ядро, �
 
 ## 2026-11-08 — HP врагов видны только после урона
 Ветка fix/health-visibility, worktree .utmp/worktrees/health-visibility. Enemy.HasTakenDamage сбрасывается при Configure и включается только в TakeDamage с положительным уроном; фон и заполнение HP скрываются уже при создании и показываются при первом уроне до смерти. RunUI не создаёт подпись здоровья/состояний над нетронутыми врагами. Это уменьшает визуальный шум, включая обычных врагов и босса. CombatPresentationValidation дополнена проверкой отсутствия полоски до урона и появления после, существующие проверки долей и левого края сохранены. COMBAT_PRESENTATION_VALIDATION_PASSED и STATIC_SHOOTER_VALIDATION_PASSED в .utmp/roll-vfx-validation/health-visibility.log. Main пока не изменён; пользовательские VisualMeshes не затронуты.
+
+**Мерж выполнен.** По одобрению пользователя fix/health-visibility перенесена в main fast-forward до 3799780. Конфликтов нет; посторонние изменения мешей и фото сохранены. Проверки выполнены перед мержем на том же коде.
