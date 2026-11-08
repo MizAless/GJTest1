@@ -88,3 +88,5 @@
 - В тултипах отделять врождённое свойство визуальным блоком без поясняющих заголовков и подписей о неизменяемости. Предпочитать компактные эффекты и числа; пояснения добавлять только при реальной неоднозначности.
 
 - Представление боя: Prefabs/StaticShooter/Gunslinger.prefab с HandSocket, Revolver.prefab с осью ствола +Z и Muzzle, ProjectileVisual.prefab с редактируемыми ядром/свечением/следом/частицами. Корень оружия целится в 3D, recoil отделён от дула. У HP фон/заполнение имеют разные порядки и небольшой зазор по глубине. Сборщик CombatReadabilityAuthoring сохраняет существующие префабы; проверка CombatPresentationValidation.Run.
+
+- Дополнительные декорации: Art/WesternProps/ (10 PNG, промпты в README), Prefabs/StaticShooter/WesternScenery.prefab (54 отдельных билборда, тени и несколько глубин). Банк StaticShooterArt.WesternSceneryPrefab подключает их в Game. WesternPropsAuthoring.Build сохраняет ручную расстановку; RebuildLayout явно восстанавливает исходную. WesternSceneryValidation.Run проверяет загрузку, параллакс и отсутствие препятствий для пуль.

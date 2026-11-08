@@ -82,6 +82,10 @@ public sealed class StaticShooterStage : MonoBehaviour
         }
         CreateSprite("Side ruins", _art.SideRuins, new Vector3(0, 12.1f, 23), new Vector2(43, 24.2f), -200);
         CreateSprite("Near barrels and fence", _art.Foreground, new Vector3(0, 6.47f, 2), new Vector2(23, 12.94f), 190);
+        if (_art.WesternSceneryPrefab != null)
+        {
+            Instantiate(_art.WesternSceneryPrefab, transform, false);
+        }
         _hero = Instantiate(_art.HeroPrefab, _camera.transform).transform;
         _hero.localRotation = Quaternion.identity;
         GunslingerVisual character = _hero.GetComponent<GunslingerVisual>();
