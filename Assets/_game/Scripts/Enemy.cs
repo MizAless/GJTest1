@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] float _maxHealth = 30;
     public float Health { get; private set; }
     public float MaxHealth => _maxHealth;
+    public bool HasTakenDamage { get; private set; }
     public Vector3 AimPosition => StaticShooterStage.Instance == null
         ? transform.position
         : transform.position + Vector3.up * (1.4f * transform.localScale.y);
@@ -71,6 +72,7 @@ public class Enemy : MonoBehaviour
     public void Configure(int health)
     {
         _maxHealth = Health = health;
+        HasTakenDamage = false;
         Kind = health >= 200 ? "Босс" : health >= 80 ? "Большой" : health >= 50 ? "Средний" : "Хилый";
         float size = health >= 200 ? 2.6f : health >= 80 ? 1.8f : health >= 50 ? 1.15f : 1f;
         transform.localScale *= size;
@@ -82,6 +84,7 @@ public class Enemy : MonoBehaviour
         var bg = back.GetComponent<SpriteRenderer>(); bg.sprite = _square; bg.sortingOrder = 55; bg.color = new Color(.13f,.1f,.1f);
         var fill = new GameObject("Health", typeof(SpriteRenderer)); fill.transform.SetParent(back.transform, false);
         _healthBar = fill.GetComponent<SpriteRenderer>(); _healthBar.sprite = _square; _healthBar.sortingOrder = 56; _healthBar.color = new Color(.95f,.35f,.26f);
+        UpdateHealthBar();
     }
     void Update()
     {
@@ -359,6 +362,7 @@ public class Enemy : MonoBehaviour
         {
             return;
         }
+        _healthBar.transform.parent.gameObject.SetActive(HasTakenDamage && IsAlive);
         float fraction = Mathf.Clamp01(Health / _maxHealth);
         _healthBar.transform.localScale = new Vector3(fraction, 1, 1);
         // Compensate the centered sprite pivot so only its right edge moves as health falls.
@@ -371,6 +375,7 @@ public class Enemy : MonoBehaviour
     {
         if (!IsAlive || amount <= 0) return;
         Health = Mathf.Max(0,Health-amount);
+        HasTakenDamage = true;
         UpdateHealthBar();
         _flashUntil = Time.time + .11f; _knockback += direction.normalized * 1.8f;
         if (RunUI.Instance != null) RunUI.Instance.Damage(AimPosition,amount,color);

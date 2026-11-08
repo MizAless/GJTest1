@@ -31,8 +31,10 @@ public static class CombatPresentationValidation
             SpriteRenderer background = bar.GetComponent<SpriteRenderer>();
             SpriteRenderer fill = bar.Find("Health").GetComponent<SpriteRenderer>();
             Require(fill.sortingOrder > background.sortingOrder, "HP fill must render in front of background.");
+            Require(!bar.gameObject.activeSelf && !enemy.HasTakenDamage, "Untouched enemy HP must be hidden.");
             float edge = fill.transform.localPosition.x - fill.sprite.bounds.extents.x * fill.transform.localScale.x;
             enemy.TakeDamage(10, Color.white, Vector3.zero);
+            Require(bar.gameObject.activeSelf && enemy.HasTakenDamage, "First damage must reveal HP.");
             Require(Mathf.Abs(enemy.Health - 20) < 0.01f, "First hit must leave 20/30 HP.");
             Require(Mathf.Abs(fill.transform.localScale.x - 2f / 3) < 0.001f, "Fill must show two thirds.");
             enemy.TakeDamage(10, Color.white, Vector3.zero);
