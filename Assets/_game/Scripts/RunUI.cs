@@ -190,7 +190,10 @@ public class RunUI : MonoBehaviour
         foreach(var enemy in _labels.Keys.Where(e=>e==null||!e.IsAlive).ToArray()) { if(_labels[enemy]!=null) Destroy(_labels[enemy].gameObject);_labels.Remove(enemy); }
         foreach(var enemy in G.Enemies)
         {
-            if(enemy==null||!enemy.IsAlive) continue;
+            if (enemy == null || !enemy.IsAlive || !enemy.HasTakenDamage)
+            {
+                continue;
+            }
             if(!_labels.TryGetValue(enemy,out var label)) {label=Label(_root,"Enemy health",0,0,240,42,12);label.alignment=TextAnchor.MiddleCenter;_labels[enemy]=label;label.transform.SetAsFirstSibling();}
             Vector3 screen=Camera.main.WorldToScreenPoint(enemy.AimPosition + Vector3.up * (StaticShooterStage.Instance != null ? 1.8f * enemy.transform.localScale.y : 0.8f));
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_root,screen,null,out var local);
