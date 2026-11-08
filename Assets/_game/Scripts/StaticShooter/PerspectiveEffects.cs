@@ -10,6 +10,10 @@ public static class PerspectiveEffects
             return;
         }
         effect.transform.position = origin;
+        if (effect.GetComponent<PhysicalBlood>() != null)
+        {
+            return;
+        }
         effect.transform.rotation = Camera.main.transform.rotation;
         effect.transform.localScale *= scale;
         foreach (ParticleSystem system in effect.GetComponentsInChildren<ParticleSystem>(true))

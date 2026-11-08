@@ -59,3 +59,32 @@ stage builder). Existing prefabs are retained so Inspector tuning survives.
 Validation: CombatPresentationValidation.Run checks health fractions, anchored
 fill, sorting, socket parenting and actual 3D muzzle alignment, then runs the
 stage's real projectile-hit test and saves a camera render with three colors.
+
+## Physical blood and muzzle flash
+
+`BloodHit3D.prefab` and `BloodDeath3D.prefab` in Prefabs/StaticShooter are independent,
+editable ParticleSystem effects for the perspective stage. Their square meshes
+spread through XYZ with world gravity, collide with GroundSurface through the
+particle physics plane solver, and settle as flat red squares. PhysicalBlood
+keeps landed particles still and above the floor until their authored lifetime
+and color fade end. No Rigidbody is created per droplet; the floor does not need
+a collider that could intercept the aiming ray. Existing 2D blood remains as a
+fallback in scenes without StaticShooterStage.
+
+Edit count, speed, gravity, lifetime and color on the blood prefabs. BloodSquares
+is double sided and depth tested, so droplets are occluded by actual world depth.
+The plane reference is supplied on spawn; it cannot be previewed against the
+scene floor from an isolated Prefab Stage. Enemy cleanup follows blood lifetime
+instead of deleting the effect after one or two seconds.
+
+Revolver.prefab keeps the muzzle anchor at Z=0.58, just beyond the support barrel.
+Its small flash emitter is another 0.035 forward, emits three 0.09–0.15-unit
+particles and lasts 25–50 ms. Local simulation keeps the short flash attached to
+the weapon. PhysicalBloodAuthoring.Build explicitly updates these assets;
+ordinary scene startup does not overwrite particle settings.
+
+PhysicalBloodValidation.Run checks actual hit/death prefab bindings, XYZ spread,
+gravity, plane contact, landed orientation/lifetime and muzzle emission. It saves
+muzzle-flash.png, blood-airborne.png and blood-landed.png into .utmp/Artifacts in
+the validation project. StaticShooterValidation.RunSavedScene remains available
+for the existing cursor/projectile regression without rebuilding assets.

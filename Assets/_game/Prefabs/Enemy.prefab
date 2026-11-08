@@ -52,6 +52,8 @@ MonoBehaviour:
   _speed: 1.6
   _onDeadVFX: {fileID: 1021408184984333791, guid: 4ef954fa6651bf74e8e0649319331004, type: 3}
   _hitVFX: {fileID: 1517306768664494928, guid: 09387c6803a458f4caa7cab12bc9d16d, type: 3}
+  _hitBlood3D: {fileID: 5453988462800712522, guid: 704ffbb8b53e11a47b2c1331e1f2be24, type: 3}
+  _deathBlood3D: {fileID: 366412782335025670, guid: b246cd8945e29c7418f1b5f1fc846a15, type: 3}
   _maxHealth: 30
 --- !u!212 &3550511817217055350
 SpriteRenderer:
