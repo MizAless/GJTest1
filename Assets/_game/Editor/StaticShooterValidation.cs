@@ -60,7 +60,7 @@ public static class StaticShooterValidation
             if (_phase == 0)
             {
                 Require(!Camera.main.orthographic, "Camera must have real perspective.");
-                Require(!stage.AutoAim, "Manual aim must be default.");
+                Require(stage.AutoAim, "Auto aim must be default.");
                 _target = G.Enemies.First();
                 Require(_target.transform.position.z > 10 && Mathf.Abs(_target.transform.position.y) < 0.1f,
                     "Enemy must spawn on ground at actual depth.");

@@ -2,7 +2,7 @@
 
 Open `Assets/_game/Scenes/Game.unity`, then Play.
 
-- Mouse: manual aim (default).
+- Auto aim is enabled by default. Press F for manual mouse aiming.
 - Left click or Space: fire the next cartridge.
 - F: switch manual / automatic aim. Automatic aim falls back to cursor without enemies.
 - R: restart the run.

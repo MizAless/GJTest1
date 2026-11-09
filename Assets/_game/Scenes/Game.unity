@@ -555,7 +555,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   _art: {fileID: 11400000, guid: fb06d6069c0d94a40ad2baf402f017f3, type: 2}
-  _autoAim: 0
+  _autoAim: 1
 --- !u!4 &888898578
 Transform:
   m_ObjectHideFlags: 0

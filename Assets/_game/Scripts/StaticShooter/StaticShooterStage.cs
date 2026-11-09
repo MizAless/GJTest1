@@ -7,7 +7,7 @@ public sealed class StaticShooterStage : MonoBehaviour
 {
     public static StaticShooterStage Instance { get; private set; }
     [SerializeField] private StaticShooterArt _art;
-    [SerializeField] private bool _autoAim;
+    [SerializeField] private bool _autoAim = true;
     private Camera _camera;
     private Shooter _shooter;
     private Transform _hero;
