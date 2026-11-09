@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +12,8 @@ public enum AmmoPropertyKind
 public sealed class AmmoPropertyTier
 {
     public string Name = "T1";
+    [Tooltip("Explicit strength order within this property. Larger means stronger; independent of Name.")]
+    [Min(1)] public int PowerRank = 1;
     [Min(0)] public float Weight = 100;
     public BulletRarity MinimumRarity = BulletRarity.Common;
     public BulletRarity MaximumRarity = BulletRarity.Legendary;

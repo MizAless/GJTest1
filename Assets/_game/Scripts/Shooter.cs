@@ -70,6 +70,7 @@ public class Shooter : MonoBehaviour
             if (layer.Trigger == AmmoTrigger.ShotNext || layer.Trigger == AmmoTrigger.ShotPrevious || layer.Trigger == AmmoTrigger.ShotTwo)
                 foreach (int target in _bulletContainer.Destinations(slot,layer.Trigger)) _bulletContainer.Grant(slot,target,layer);
         var profile = _bulletContainer.Profiles[slot].Copy();
+        profile.SourceActorId = GetInstanceID();
         yield return LaunchVolley(context,profile);
         foreach (var layer in layers)
         {
@@ -77,7 +78,9 @@ public class Shooter : MonoBehaviour
             {
                 int next = _bulletContainer.Next(slot+1);
                 if (RunUI.Instance != null) RunUI.Instance.Transfer(slot,next);
-                yield return LaunchVolley(context,_bulletContainer.Profiles[next].Copy());
+                CombatProfile nextProfile = _bulletContainer.Profiles[next].Copy();
+                nextProfile.SourceActorId = GetInstanceID();
+                yield return LaunchVolley(context, nextProfile);
             }
         }
         _launchingShots--;

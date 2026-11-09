@@ -38,6 +38,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -45,6 +46,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -52,6 +54,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -66,6 +69,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -73,6 +77,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -80,6 +85,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -94,6 +100,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -101,6 +108,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -108,6 +116,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -122,6 +131,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -129,6 +139,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -136,6 +147,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -150,6 +162,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -164,6 +177,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -171,6 +185,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -178,6 +193,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -192,6 +208,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -199,6 +216,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -206,6 +224,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -220,6 +239,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -227,6 +247,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -234,6 +255,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -248,6 +270,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -255,6 +278,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -262,6 +286,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -276,6 +301,7 @@ MonoBehaviour:
     AllowStarter: 1
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -283,6 +309,7 @@ MonoBehaviour:
       MinimumValue: 1
       MaximumValue: 1
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -290,6 +317,7 @@ MonoBehaviour:
       MinimumValue: 2
       MaximumValue: 2
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -304,6 +332,7 @@ MonoBehaviour:
     AllowStarter: 0
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -318,6 +347,7 @@ MonoBehaviour:
     AllowStarter: 0
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -325,6 +355,7 @@ MonoBehaviour:
       MinimumValue: 25
       MaximumValue: 25
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -332,6 +363,7 @@ MonoBehaviour:
       MinimumValue: 50
       MaximumValue: 50
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -346,6 +378,7 @@ MonoBehaviour:
     AllowStarter: 0
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -353,6 +386,7 @@ MonoBehaviour:
       MinimumValue: 50
       MaximumValue: 50
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -360,6 +394,7 @@ MonoBehaviour:
       MinimumValue: 100
       MaximumValue: 100
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -374,6 +409,7 @@ MonoBehaviour:
     AllowStarter: 0
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -381,6 +417,7 @@ MonoBehaviour:
       MinimumValue: 50
       MaximumValue: 50
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -388,6 +425,7 @@ MonoBehaviour:
       MinimumValue: 100
       MaximumValue: 100
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -402,6 +440,7 @@ MonoBehaviour:
     AllowStarter: 0
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -409,6 +448,7 @@ MonoBehaviour:
       MinimumValue: 50
       MaximumValue: 50
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -416,6 +456,7 @@ MonoBehaviour:
       MinimumValue: 100
       MaximumValue: 100
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3
@@ -430,6 +471,7 @@ MonoBehaviour:
     AllowStarter: 0
     Tiers:
     - Name: T1
+      PowerRank: 1
       Weight: 70
       MinimumRarity: 0
       MaximumRarity: 3
@@ -437,6 +479,7 @@ MonoBehaviour:
       MinimumValue: 50
       MaximumValue: 50
     - Name: T2
+      PowerRank: 2
       Weight: 25
       MinimumRarity: 1
       MaximumRarity: 3
@@ -444,6 +487,7 @@ MonoBehaviour:
       MinimumValue: 100
       MaximumValue: 100
     - Name: T3
+      PowerRank: 3
       Weight: 5
       MinimumRarity: 2
       MaximumRarity: 3

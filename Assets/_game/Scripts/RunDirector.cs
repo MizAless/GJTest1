@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GameEconomy;
 
 public class RunDirector : MonoBehaviour
 {
     public static RunDirector Instance { get; private set; }
+    public RunEconomyContext Economy { get; private set; }
     public bool CombatActive { get; private set; }
     public int Round { get; private set; }
     public int Pack { get; private set; }
@@ -20,7 +22,14 @@ public class RunDirector : MonoBehaviour
     public BulletContainer Drum => Shooter.Container;
     EnemySpawner _spawner;
     RunUI _ui;
-    public void Initialize(EnemySpawner spawner) { Instance=this; _spawner=spawner; }
+    public void Initialize(EnemySpawner spawner)
+    {
+        Economy?.Dispose();
+        RunEconomySettings settings = Resources.Load<RunEconomySettings>(RunEconomySettings.ResourcePath);
+        Economy = new RunEconomyContext(settings);
+        Instance = this;
+        _spawner = spawner;
+    }
     private IEnumerator Start()
     {
         Shooter = FindAnyObjectByType<Shooter>();
@@ -146,6 +155,7 @@ public class RunDirector : MonoBehaviour
         }
 
         Defeated = true;
+        Economy?.Dispose();
         CombatActive = false;
         AwaitingReward = false;
         StopAllCoroutines();
@@ -155,5 +165,13 @@ public class RunDirector : MonoBehaviour
         _ui.ShowDefeat();
     }
 
-    void OnDestroy() { if(Instance==this) Instance=null; Time.timeScale=1; }
+    private void OnDestroy()
+    {
+        Economy?.Dispose();
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+        Time.timeScale = 1;
+    }
 }

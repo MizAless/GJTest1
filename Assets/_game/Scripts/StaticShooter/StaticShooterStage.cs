@@ -11,6 +11,7 @@ public sealed class StaticShooterStage : MonoBehaviour
     private Camera _camera;
     private Shooter _shooter;
     private Transform _hero;
+    public Transform CollectionTarget { get; private set; }
     private RevolverVisual _weapon;
     private Vector2 _look;
     public Transform GroundSurface { get; private set; }
@@ -88,6 +89,9 @@ public sealed class StaticShooterStage : MonoBehaviour
         }
         _hero = Instantiate(_art.HeroPrefab, _camera.transform).transform;
         _hero.localRotation = Quaternion.identity;
+        CollectionTarget = new GameObject("Loot collection target").transform;
+        CollectionTarget.SetParent(_hero, false);
+        CollectionTarget.localPosition = new Vector3(0.3f, 0.6f, 0);
         GunslingerVisual character = _hero.GetComponent<GunslingerVisual>();
         _weapon = Instantiate(_art.RevolverPrefab, character.WeaponSocket, false).GetComponent<RevolverVisual>();
         AddSceneryShadow(new Vector3(-10, 0, 16), new Vector2(9, 5));

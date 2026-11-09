@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using GameEconomy;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Enemy : MonoBehaviour
@@ -35,6 +36,10 @@ public class Enemy : MonoBehaviour
     private float _nextContactAttack;
     private float _nextPainReaction;
     private int _receivedHits;
+    private DamageSource _lastDamageSource;
+    private RunEconomyContext _economy;
+    public int SpawnWave { get; private set; }
+    public int SpawnGroup { get; private set; }
     public const float NaturalOverloadThreshold = 5f;
 
     private float _fireOverloadProgress;
@@ -46,6 +51,7 @@ public class Enemy : MonoBehaviour
     private class DotCharge
     {
         public string Type;
+        public DamageSource Source;
         public float Damage;
         public int Ticks;
         public float OverloadDamage;
@@ -68,9 +74,20 @@ public class Enemy : MonoBehaviour
         }
         _sprite = GetComponent<SpriteRenderer>();
         Health = _maxHealth;
+        BindEconomy();
     }
+    private void BindEconomy()
+    {
+        RunDirector run = RunDirector.Instance;
+        _economy = run != null ? run.Economy : null;
+        SpawnWave = run != null ? run.Round : 0;
+        SpawnGroup = run != null ? run.Pack : 0;
+    }
+
     public void Configure(int health)
     {
+        BindEconomy();
+        _lastDamageSource = default;
         _maxHealth = Health = health;
         HasTakenDamage = false;
         Kind = health >= 200 ? "Босс" : health >= 80 ? "Большой" : health >= 50 ? "Средний" : "Хилый";
@@ -137,11 +154,11 @@ public class Enemy : MonoBehaviour
             damage *= 1.5f;
         }
 
-        TakeDamage(damage, profile.Color, direction);
+        TakeDamage(damage, profile.Color, direction, new DamageSource(DamageKind.Projectile, profile.SourceActorId));
         _receivedHits++;
         if (shatter)
         {
-            CombatEffects.Area(transform.position, 15 * profile.All * profile.Area, Color.cyan);
+            CombatEffects.Area(transform.position, 15 * profile.All * profile.Area, Color.cyan, new DamageSource(DamageKind.Area, profile.SourceActorId));
         }
 
         if (!IsAlive)
@@ -158,7 +175,7 @@ public class Enemy : MonoBehaviour
 
         if (Punctures > 0)
         {
-            TakeDamage(2 * Punctures * Punctures * profile.All, new Color(0.8f, 0.5f, 1), Vector3.zero);
+            TakeDamage(2 * Punctures * Punctures * profile.All, new Color(0.8f, 0.5f, 1), Vector3.zero, new DamageSource(DamageKind.Projectile, profile.SourceActorId));
         }
 
         if (!IsAlive || !properties.Overload)
@@ -171,7 +188,7 @@ public class Enemy : MonoBehaviour
         if (Count("огонь") > 0)
         {
             TriggerDotOverload("огонь", 15 * profile.All * profile.Area,
-                1.5f * profile.All * profile.Dot, consumeStatus: true);
+                1.5f * profile.All * profile.Dot, consumeStatus: true, source: new DamageSource(DamageKind.Area, profile.SourceActorId));
         }
 
         if (!IsAlive)
@@ -189,13 +206,13 @@ public class Enemy : MonoBehaviour
         if (Count("яд") > 0)
         {
             TriggerDotOverload("яд", 10 * profile.All * profile.Area,
-                1.5f * profile.All * profile.Dot, consumeStatus: true);
+                1.5f * profile.All * profile.Dot, consumeStatus: true, source: new DamageSource(DamageKind.Area, profile.SourceActorId));
         }
 
         if (IsAlive && Punctures >= 2)
         {
             Punctures = 0;
-            TakeDamage(40 * profile.All, new Color(0.8f, 0.5f, 1), Vector3.zero);
+            TakeDamage(40 * profile.All, new Color(0.8f, 0.5f, 1), Vector3.zero, new DamageSource(DamageKind.Projectile, profile.SourceActorId));
         }
         TryPlayPainReaction();
     }
@@ -222,6 +239,7 @@ public class Enemy : MonoBehaviour
             _dots.Add(new DotCharge
             {
                 Type = type,
+                Source = new DamageSource(DamageKind.Status, source == null ? 0 : source.SourceActorId, type),
                 Damage = damage,
                 Ticks = ticks,
                 OverloadDamage = explosionBase * allMultiplier * areaMultiplier,
@@ -230,7 +248,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void TriggerDotOverload(string type, float damage, float spreadDamage, bool consumeStatus)
+    private void TriggerDotOverload(string type, float damage, float spreadDamage, bool consumeStatus, DamageSource source = default)
     {
         if (type == "огонь")
         {
@@ -250,7 +268,7 @@ public class Enemy : MonoBehaviour
             ? CombatEffects.InRadius(transform.position).Where(enemy => enemy != this).ToArray()
             : new Enemy[0];
         Color color = type == "огонь" ? new Color(1, 0.45f, 0.1f) : new Color(0.45f, 1, 0.15f);
-        CombatEffects.Area(transform.position, damage, color);
+        CombatEffects.Area(transform.position, damage, color, new DamageSource(DamageKind.Area, source.ActorId));
 
         foreach (Enemy neighbor in neighbors)
         {
@@ -310,7 +328,9 @@ public class Enemy : MonoBehaviour
                 color = new Color(1, 0.5f, 0.15f);
             }
 
-            TakeDamage(damage, color, Vector3.zero);
+            DamageSource source = charges.OrderByDescending(charge => charge.Damage)
+                .FirstOrDefault()?.Source ?? default;
+            TakeDamage(damage, color, Vector3.zero, source);
             if (!IsAlive)
             {
                 return;
@@ -337,7 +357,7 @@ public class Enemy : MonoBehaviour
         if (progress >= NaturalOverloadThreshold && charges.Length > 0)
         {
             DotCharge strongest = charges.OrderByDescending(charge => charge.OverloadDamage).First();
-            TriggerDotOverload(type, strongest.OverloadDamage, strongest.SpreadDamage, consumeStatus: false);
+            TriggerDotOverload(type, strongest.OverloadDamage, strongest.SpreadDamage, consumeStatus: false, source: strongest.Source);
             progress = 0;
         }
 
@@ -371,9 +391,10 @@ public class Enemy : MonoBehaviour
     }
 
     public void TakeDamage() => TakeDamage(10,Color.white,Vector3.zero);
-    public void TakeDamage(float amount, Color color, Vector3 direction)
+    public void TakeDamage(float amount, Color color, Vector3 direction, DamageSource source = default)
     {
         if (!IsAlive || amount <= 0) return;
+        _lastDamageSource = source;
         Health = Mathf.Max(0,Health-amount);
         HasTakenDamage = true;
         UpdateHealthBar();
@@ -393,6 +414,24 @@ public class Enemy : MonoBehaviour
     void Die()
     {
         if (_dead) return; _dead = true;
+        if (_economy != null)
+        {
+            EnemyKind kind = EnemyKind.Weak;
+            if (_maxHealth >= 200)
+            {
+                kind = EnemyKind.Boss;
+            }
+            else if (_maxHealth >= 80)
+            {
+                kind = EnemyKind.Strong;
+            }
+            else if (_maxHealth >= 50)
+            {
+                kind = EnemyKind.Medium;
+            }
+            _economy.PublishDeath(new EnemyDeathInfo(_economy.RunId, GetInstanceID(), kind,
+                _maxHealth, transform.position, AimPosition, SpawnWave, SpawnGroup, _lastDamageSource));
+        }
         GameAudio.Play(SoundCue.EnemyDeath, transform.position);
         G.Enemies.Remove(this);
         foreach (var c in GetComponents<Collider2D>()) c.enabled = false;
@@ -418,10 +457,10 @@ public static class CombatEffects
 {
     public const float Radius = 2.1f;
     public static Enemy[] InRadius(Vector3 origin) => G.Enemies.Where(e=>e!=null&&e.IsAlive&&(e.transform.position-origin).sqrMagnitude<=Radius*Radius).ToArray();
-    public static void Area(Vector3 origin, float damage, Color color)
+    public static void Area(Vector3 origin, float damage, Color color, DamageSource source = default)
     {
         GameAudio.Play(SoundCue.Explosion, origin);
         if (G.DataBase.ExplosionPrefab != null) Object.Instantiate(G.DataBase.ExplosionPrefab,origin,Quaternion.identity).Visual(Radius,color);
-        foreach (var e in InRadius(origin)) e.TakeDamage(damage,color,e.transform.position-origin);
+        foreach (var e in InRadius(origin)) e.TakeDamage(damage,color,e.transform.position-origin, source.Kind == DamageKind.Unknown ? new DamageSource(DamageKind.Area) : source);
     }
 }

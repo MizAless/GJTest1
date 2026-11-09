@@ -100,6 +100,7 @@ public class AmmoItem
 // Profiles are immutable snapshots for each projectile; module instances are never shared.
 public class CombatProfile
 {
+    public int SourceActorId;
     public AmmoProperties Properties = new AmmoProperties();
     public float All = 1, Projectile = 1, Dot = 1, Area = 1, Afflicted = 1;
     public float Damage => 10 * All * Projectile;

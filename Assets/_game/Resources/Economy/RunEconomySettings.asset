@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b35a9b69f2e24cafb61aad9bc7d76ebb, type: 3}
+  m_Name: RunEconomySettings
+  m_EditorClassIdentifier:
+  RarityMultipliers:
+  - 0.4
+  - 0.77
+  - 1.13
+  - 1.5
+  - 1.5
+  ShardKinds:
+  - Kind: 0
+    AllowAllProperties: 1
+    AllowedProperties: []
+  - Kind: 1
+    AllowAllProperties: 0
+    AllowedProperties: 06000000
+  - Kind: 2
+    AllowAllProperties: 0
+    AllowedProperties: 05000000
+  ShardGrades:
+  - Grade: 1
+    ExcludedWeakestTiers: 3
+    PowerWeightExponent: 2
+    Cost: 1
+  - Grade: 2
+    ExcludedWeakestTiers: 1
+    PowerWeightExponent: 1
+    Cost: 1
+  - Grade: 3
+    ExcludedWeakestTiers: 0
+    PowerWeightExponent: 0
+    Cost: 1
+  MaximumAdditionalProperties: 2
+  MaximumAdditionalTriggers: 1
+  AllowModuleCrafting: 1
