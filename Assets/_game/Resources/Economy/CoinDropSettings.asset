@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e44347a92b7428b9de9245bb527325f, type: 3}
+  m_Name: CoinDropSettings
+  m_EditorClassIdentifier:
+  Rules:
+  - Kind: 0
+    Count: 1
+    Value: 1
+  - Kind: 1
+    Count: 2
+    Value: 1
+  - Kind: 2
+    Count: 3
+    Value: 2
+  - Kind: 3
+    Count: 8
+    Value: 5
+  HoverHeight: 0.45
+  CoinDiameter: 0.48
+  ScatterRadius: 0.65
+  ChainBudget: 2.4
+  MaximumHopTime: 0.12
+  FlyTime: 0.65
+  TossTime: 0.14
