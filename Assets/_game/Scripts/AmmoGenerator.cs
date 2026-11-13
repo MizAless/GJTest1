@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,14 +15,19 @@ public static class AmmoGenerator
         return Generate(table, module, starter);
     }
 
-    public static AmmoItem Generate(AmmoDropTable table, bool module, bool starter = false)
+    public static AmmoItem Generate(AmmoDropTable table, bool module, bool starter = false,
+        float rarityMultiplier = 1f)
     {
         if (table == null)
         {
             throw new ArgumentNullException(nameof(table));
         }
+        if (float.IsNaN(rarityMultiplier) || float.IsInfinity(rarityMultiplier) || rarityMultiplier < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rarityMultiplier));
+        }
         AmmoRarityDrop rarity = AmmoDropTable.Pick(table.Rarities,
-            entry => !starter || entry.Rarity == BulletRarity.Common ? entry.Weight : 0);
+            entry => GetRarityWeight(entry, starter, rarityMultiplier));
         if (rarity == null)
         {
             throw new InvalidOperationException("Ammo drop table has no eligible rarity with positive weight.");
@@ -43,6 +48,7 @@ public static class AmmoGenerator
         {
             AmmoPropertyDrop property = AmmoDropTable.Pick(table.Properties, entry =>
                 !used.Contains(entry.Property) && entry.IsAvailable(module, rarity.Rarity, starter)
+                    && entry.Tiers.Exists(tier => IsTierAvailable(table, tier, rarity.Rarity, starter))
                     ? entry.Weight : 0);
             if (property == null)
             {
@@ -50,7 +56,7 @@ public static class AmmoGenerator
                 break;
             }
             AmmoPropertyTier tier = AmmoDropTable.Pick(property.Tiers,
-                entry => entry.IsAvailable(rarity.Rarity, starter) ? entry.Weight : 0);
+                entry => IsTierAvailable(table, entry, rarity.Rarity, starter) ? entry.Weight : 0);
             Apply(item.Properties, property.Property, tier.RollValue(property.Property));
             used.Add(property.Property);
         }
@@ -71,6 +77,27 @@ public static class AmmoGenerator
             ? item.Archetype.Name
             : (module ? "Модуль: " : "Патрон: ") + item.Properties.Description().Split('\n')[0];
         return item;
+    }
+
+    // Relative weights are normalized by AmmoDropTable.Pick; the shared entries stay untouched.
+    public static float GetRarityWeight(AmmoRarityDrop entry, bool starter, float multiplier)
+    {
+        if (entry == null || (starter && entry.Rarity != BulletRarity.Common))
+        {
+            return 0;
+        }
+        if (entry.Rarity == BulletRarity.Common)
+        {
+            return entry.Weight;
+        }
+        return entry.Weight * multiplier;
+    }
+
+    private static bool IsTierAvailable(AmmoDropTable table, AmmoPropertyTier tier,
+        BulletRarity rarity, bool starter)
+    {
+        return tier != null && tier.IsAvailable(rarity, starter)
+            && (!starter || tier.PowerRank <= table.StarterMaximumPowerRank);
     }
 
     public static void Apply(AmmoProperties properties, AmmoPropertyKind kind, float value)

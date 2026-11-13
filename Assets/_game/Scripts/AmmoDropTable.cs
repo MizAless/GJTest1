@@ -96,6 +96,8 @@ public sealed class AmmoTriggerDrop
 public sealed class AmmoDropTable : ScriptableObject
 {
     public const string ResourcePath = "Drops/AmmoDropTable";
+    [Tooltip("Starter tiers must also have AllowStarter enabled. Larger PowerRank means stronger.")]
+    [Min(1)] public int StarterMaximumPowerRank = 1;
     [Tooltip("Cartridge types, their fixed intrinsic and art. Modules never roll a cartridge type.")]
     public List<AmmoArchetype> Archetypes = new List<AmmoArchetype>();
     [Tooltip("Relative rarity weights, property counts and optional trigger chances.")]
