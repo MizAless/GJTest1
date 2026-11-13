@@ -1,4 +1,4 @@
-﻿# Economy contracts — shared base for tasks 1–4
+# Economy contracts — shared base for tasks 1–4
 
 Namespace: `GameEconomy`. Runtime code: `Scripts/Economy/`.
 Settings: `Resources/Economy/RunEconomySettings.asset`.
@@ -145,3 +145,19 @@ Task 5 owns UI. Task 6 owns final registration, RunDirector stage transitions,
 waiting for collection, victory/defeat and the complete run test.
 
 Validation: `EconomyFoundationValidation.Run`; integration: `EnemyPressureValidation.Run`.
+
+## Shop implementation — task 1
+
+See [Shop/README.md](Shop/README.md) for configuration, exact results and UI examples.
+`IShopService` / `ShopService(run, settings, drum, rarity = null)`:
+`Open(int completedWave) -> ShopVisit`,
+`TryPurchase(Guid offerId, int? cartridgeSlot = null) -> ShopPurchaseResult`.
+One instance per run; fixed visits, purchases and immutable offer previews survive
+page closes. The service checks context lifetime. `ShopSettings.ResourcePath` is
+`Economy/ShopSettings`; its DropTable references the current AmmoDropTable.
+`AmmoGenerator.Generate(table, module, starter = false, rarityMultiplier = 1)`
+applies non-Common weights during the roll, never modifying the shared table.
+RunInventory has a narrow internal TryCommitShopPurchase transaction for wallet,
+delivery and sold flag before Changed. General public inventory API is unchanged.
+Cartridge purchase refreshes the drum between waves; UI never separately pays or
+installs items. Free rewards and RunDirector stage order remain unchanged.
