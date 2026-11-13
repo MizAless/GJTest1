@@ -63,3 +63,7 @@ Validation: `CoinCollectionValidation.Run` in Unity batchmode. Tests four kinds,
 retention, totals, route, collision absence, concurrent/repeated calls, 500 coins,
 no combat drum consumption, cancellation, run end and replacement. Captures are
 saved in `.utmp/Artifacts/coins-idle.png` and `coins-collection.png`.
+
+Denomination affects visual diameter and shadow: value 1 = base, 2 = +15%,
+5 = about +35%. Growth is logarithmic and capped at +50% for large values.
+This does not change scatter, collisions, flight timing or credited value.

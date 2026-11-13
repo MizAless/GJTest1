@@ -6,6 +6,8 @@ namespace GameEconomy
     // Native geometry: an edged gold disc, not a physics object or combat target.
     public sealed class CoinVisual : MonoBehaviour
     {
+        private const float SizeGrowthPerValueDoubling = 0.15f;
+        private const float MaximumSizeGrowth = 0.5f;
         private static Mesh _mesh;
         private static Material _material;
         private Transform _disc;
@@ -26,10 +28,14 @@ namespace GameEconomy
             GameObject disc = new GameObject("Gold coin", typeof(MeshFilter), typeof(MeshRenderer));
             _disc = disc.transform;
             _disc.SetParent(transform, false);
-            _disc.localScale = Vector3.one * settings.CoinDiameter;
+            // Logarithmic growth keeps high denominations readable without giant coins.
+            float valueDoublings = Mathf.Log(Mathf.Max(1, value), 2);
+            float sizeGrowth = Mathf.Min(valueDoublings * SizeGrowthPerValueDoubling, MaximumSizeGrowth);
+            float sizeMultiplier = 1 + sizeGrowth;
+            _disc.localScale = Vector3.one * settings.CoinDiameter * sizeMultiplier;
             disc.GetComponent<MeshFilter>().sharedMesh = _mesh;
             disc.GetComponent<MeshRenderer>().sharedMaterial = _material;
-            _shadow = SoftGroundShadow.Create(transform, Vector3.zero, new Vector2(0.65f, 0.45f), 5);
+            _shadow = SoftGroundShadow.Create(transform, Vector3.zero, new Vector2(0.65f, 0.45f) * sizeMultiplier, 5);
             _shadow.transform.rotation = Quaternion.Euler(90, 0, 0);
             UpdatePose();
         }
