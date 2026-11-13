@@ -24,7 +24,7 @@ public sealed class UpgradeSelection
 
     public void SelectOffer(int index)
     {
-        if (!_run.AwaitingReward || AwaitingConfirmation || index < 0 || index >= _run.Offers.Length)
+        if (!_run.AwaitingReward || _run.RewardsComplete || AwaitingConfirmation || index < 0 || index >= _run.Offers.Length)
         {
             return;
         }
@@ -60,6 +60,18 @@ public sealed class UpgradeSelection
             _run.SwapRewardCartridges(Slot, index);
             Slot = -1;
         }
+        Changed?.Invoke();
+    }
+
+    public void FocusSlot(int index)
+    {
+        if (!_run.AwaitingReward || index < 0 || index >= _run.Drum.MaxBullets)
+        {
+            return;
+        }
+        Offer = -1;
+        Slot = index;
+        AwaitingConfirmation = false;
         Changed?.Invoke();
     }
 

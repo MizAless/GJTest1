@@ -115,6 +115,7 @@ public static class FiveWaveRunValidation
     {
         try
         {
+            EditorApplication.QueuePlayerLoopUpdate();
             Require(EditorApplication.timeSinceStartup - _started < 300, "Full run validation timed out");
             if (!Application.isPlaying)
             {
@@ -165,6 +166,16 @@ public static class FiveWaveRunValidation
                     run.Drum.Cartridges[slot] = AmmoItem.Ordinary();
                     run.Drum.Sockets[slot] = null;
                 }
+                // The 3D introduction spawns three columns, so explicitly arrange the
+                // controlled piercing fixture rather than relying on the old 2D spawn pattern.
+                if (StaticShooterStage.Instance != null)
+                {
+                    Enemy[] targets = G.Enemies.Take(3).ToArray();
+                    targets[0].transform.position = new Vector3(0, 0, 8);
+                    targets[1].transform.position = new Vector3(0, 0, 10);
+                    targets[2].transform.position = new Vector3(12, 0, 20);
+                    Physics.SyncTransforms();
+                }
                 run.Drum.Cartridges[0].Properties.Pierce = 1;
                 run.Drum.Rebuild();
                 Require(run.Shooter.TryFire(), "Piercing validation shot rejected");
@@ -198,6 +209,10 @@ public static class FiveWaveRunValidation
                 bool expectedModule = _rewards % 2 == 1;
                 Require(run.ChoosingModule == expectedModule, "Expected bullet then module reward");
                 run.Choose(0, 0);
+                if (run.RewardsComplete)
+                {
+                    Require(run.ContinueAfterRewards(), "Explicit next-wave action failed");
+                }
                 _rewards++;
                 return;
             }

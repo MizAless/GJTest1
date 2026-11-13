@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -38,6 +38,7 @@ public static class BandolierUpgradeValidation
     {
         try
         {
+            EditorApplication.QueuePlayerLoopUpdate();
             Require(EditorApplication.timeSinceStartup - _started < 180, "Upgrade test timed out at phase " + _phase);
             if (!Application.isPlaying)
             {
@@ -132,7 +133,10 @@ public static class BandolierUpgradeValidation
                 Require(_screen.Selection.Slot == 4, "Confirmation allowed selecting another slot");
                 Click("Confirm replacement");
                 Require(ReferenceEquals(run.Drum.Sockets[4], _expectedReward), "Module reward not installed");
-                Require(!run.AwaitingReward && !_screen.IsOpen && Time.timeScale == 1, "Screen did not close after both rewards");
+                Require(run.RewardsComplete && run.AwaitingReward && _screen.IsOpen && Time.timeScale == 0,
+                    "Both rewards must leave intermission open");
+                Click("Next wave");
+                Require(!run.AwaitingReward && !_screen.IsOpen && Time.timeScale == 1, "Next wave did not close intermission");
                 Require(!run.SwapRewardCartridges(0, 1), "Rearranging is allowed outside the upgrade screen");
                 Debug.Log("BANDOLIER_UPGRADE_VALIDATION_PASSED: unscaled unroll, lift, swaps, spin, both selection orders, cancel, confirmation, stages and stacked tooltips");
                 Finish();

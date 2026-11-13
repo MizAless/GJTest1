@@ -14,6 +14,7 @@ public class RunDirector : MonoBehaviour
     public int PackCount { get; private set; }
     public bool AwaitingReward { get; private set; }
     public bool ChoosingModule { get; private set; }
+    public bool RewardsComplete { get; private set; }
     public bool Victory { get; private set; }
     public bool Defeated { get; private set; }
     public PlayerHealth PlayerHealth { get; private set; }
@@ -114,13 +115,16 @@ public class RunDirector : MonoBehaviour
     }
     void ShowReward(bool module)
     {
-        CombatActive=false; AwaitingReward=true; ChoosingModule=module;
+        CombatActive = false;
+        AwaitingReward = true;
+        ChoosingModule = module;
+        RewardsComplete = false;
         Offers=AmmoGenerator.Offer(module); Time.timeScale=0;
         _ui.ShowReward();
     }
     public void Choose(int offer, int slot)
     {
-        if (!AwaitingReward || offer < 0 || offer >= Offers.Length || slot < 0 || slot >= Drum.MaxBullets)
+        if (!AwaitingReward || RewardsComplete || offer < 0 || offer >= Offers.Length || slot < 0 || slot >= Drum.MaxBullets)
         {
             return;
         }
@@ -133,9 +137,21 @@ public class RunDirector : MonoBehaviour
             _ui.ShowReward();
             return;
         }
+        RewardsComplete = true;
+        _ui.ShowReward();
+    }
+
+    // The UI owns this explicit choice; combat completion and loot collection are unchanged.
+    public bool ContinueAfterRewards()
+    {
+        if (!AwaitingReward || !RewardsComplete || Defeated || !Economy.IsActive)
+        {
+            return false;
+        }
         AwaitingReward = false;
         _ui.HideReward();
         Time.timeScale = 1;
+        return true;
     }
 
     public bool SwapRewardCartridges(int first, int second)

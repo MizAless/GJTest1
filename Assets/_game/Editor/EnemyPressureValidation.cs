@@ -47,6 +47,7 @@ public static class EnemyPressureValidation
     {
         try
         {
+            EditorApplication.QueuePlayerLoopUpdate();
             Require(EditorApplication.timeSinceStartup - _started < 180, "Pressure validation timed out");
             if (EditorApplication.isPaused)
             {
@@ -116,6 +117,7 @@ public static class EnemyPressureValidation
                 run.Choose(0, 0);
                 Require(run.ChoosingModule, "Bullet reward must precede module");
                 run.Choose(0, 0);
+                Require(run.ContinueAfterRewards(), "Next wave must start explicitly after rewards");
                 _phase = 7;
             }
             else if (_phase == 7 && run.Defeated)

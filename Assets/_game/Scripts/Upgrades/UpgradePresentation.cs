@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UpgradePresentation : MonoBehaviour
@@ -9,6 +9,13 @@ public class UpgradePresentation : MonoBehaviour
     private readonly MeshRenderer[] _slotClips = new MeshRenderer[6];
     private readonly float[] _spinAmounts = new float[3];
     private readonly float[] _liftAmounts = new float[6];
+    private readonly float[] _craftFlashes = new float[6];
+    public bool OffersVisible { get; set; } = true;
+
+    public void PulseSlot(int slot)
+    {
+        _craftFlashes[slot] = Time.unscaledTime + 0.9f;
+    }
     private CartridgeVisual[] _cartridges;
     private UpgradePresentationAssets _assets;
     private BandolierPreview _bandolier;
@@ -79,9 +86,9 @@ public class UpgradePresentation : MonoBehaviour
         for (int index = 0; index < 3; index++)
         {
             bool module = _run.ChoosingModule;
-            _offers[index].gameObject.SetActive(!module);
-            _offerClips[index].gameObject.SetActive(module);
-            if (!module)
+            _offers[index].gameObject.SetActive(OffersVisible && !module);
+            _offerClips[index].gameObject.SetActive(OffersVisible && module);
+            if (!module && OffersVisible)
             {
                 _assets.ApplyAmmo(_offers[index], _run.Offers[index]);
             }
@@ -137,6 +144,8 @@ public class UpgradePresentation : MonoBehaviour
             float target = _selection.Slot == index && _selection.Offer < 0 ? 1 : 0;
             _liftAmounts[index] = Mathf.Lerp(_liftAmounts[index], target, blend);
             _bandolier.SetSlotLift(index, _liftAmounts[index]);
+            float flash = Mathf.Clamp01((_craftFlashes[index] - Time.unscaledTime) / 0.9f);
+            _cartridges[index].SetPreviewSpin(Time.unscaledTime * 0.8f, flash);
         }
     }
 
