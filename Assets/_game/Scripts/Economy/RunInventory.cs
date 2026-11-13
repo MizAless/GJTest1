@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
@@ -128,6 +128,60 @@ namespace GameEconomy
             }
             Changed?.Invoke(new InventoryChange(InventoryCurrency.Shard, shard, -amount, balance));
             return true;
+        }
+
+        // Shop delivery is a prevalidated, non-throwing slot assignment + sold flag update.
+        // Keep notifications after every piece of state has committed.
+        internal bool TryCommitShopPurchase(int price, ShardId shard, int quantity, Action deliver)
+        {
+            if (price < 0 || quantity < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(price));
+            }
+            if (Coins < price)
+            {
+                return false;
+            }
+            int shardBalance = 0;
+            if (quantity > 0)
+            {
+                shardBalance = checked(GetShardCount(shard) + quantity);
+            }
+            Coins -= price;
+            if (quantity > 0)
+            {
+                _shards[shard] = shardBalance;
+            }
+            deliver();
+            if (price > 0)
+            {
+                NotifyShopChange(new InventoryChange(InventoryCurrency.Coins, default, -price, Coins));
+            }
+            if (quantity > 0)
+            {
+                NotifyShopChange(new InventoryChange(InventoryCurrency.Shard, shard, quantity, shardBalance));
+            }
+            return true;
+        }
+
+        private void NotifyShopChange(InventoryChange change)
+        {
+            Delegate[] subscribers = Changed?.GetInvocationList();
+            if (subscribers == null)
+            {
+                return;
+            }
+            foreach (Delegate subscriber in subscribers)
+            {
+                try
+                {
+                    ((Action<InventoryChange>)subscriber)(change);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
         }
 
         private static void ValidateAmount(int amount)

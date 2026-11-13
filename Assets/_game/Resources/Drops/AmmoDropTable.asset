@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 712d5fff85934fc9a1a5c36a445fa0a2, type: 3}
   m_Name: AmmoDropTable
   m_EditorClassIdentifier:
+  StarterMaximumPowerRank: 1
   Rarities:
   - Rarity: 0
     Weight: 55
@@ -718,7 +719,7 @@ MonoBehaviour:
       AfflictedMore: 0
   - Name: Рикошетная пуля
     Weight: 100
-    AllowStarter: 1
+    AllowStarter: 0
     VisualIndex: 4
     IntrinsicDescription: +2 к рикошету.
     SelfProperties:
