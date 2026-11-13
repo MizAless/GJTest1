@@ -73,7 +73,7 @@ public static class AmmoGenerator
         return item;
     }
 
-    private static void Apply(AmmoProperties properties, AmmoPropertyKind kind, float value)
+    public static void Apply(AmmoProperties properties, AmmoPropertyKind kind, float value)
     {
         int count = Mathf.RoundToInt(value);
         switch (kind)

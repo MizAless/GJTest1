@@ -17,6 +17,15 @@ public class BulletContainer : MonoBehaviour
     public event Action Shooted;
     public event Action Reloaded;
     public event Action<int,int> Transferred;
+    private sealed class RuntimeGrant
+    {
+        public int Target;
+        public AmmoProperties Properties;
+    }
+
+    private readonly List<RuntimeGrant> _runtimeGrants = new List<RuntimeGrant>();
+    private bool _buildingProfiles;
+    private bool _silentRefresh;
     public bool Initialized => Cartridges != null;
     public void Init()
     {
@@ -69,11 +78,63 @@ public class BulletContainer : MonoBehaviour
     }
     public void Grant(int source, int target, AmmoItem layer)
     {
-        Profiles[target].Apply(layer.Properties); Transferred?.Invoke(source,target);
+        Profiles[target].Apply(layer.Properties);
+        if (!_buildingProfiles)
+        {
+            _runtimeGrants.Add(new RuntimeGrant { Target = target, Properties = layer.Properties.Copy() });
+        }
+        if (!_silentRefresh)
+        {
+            Transferred?.Invoke(source, target);
+        }
     }
     public void Rebuild()
     {
-        Used = 0; Profiles = new CombatProfile[MaxBullets];
+        Used = 0;
+        _runtimeGrants.Clear();
+        BuildProfiles();
+        Reloaded?.Invoke();
+    }
+
+    // Recalculate equipment without refilling chambers or replaying presentation events.
+    // Shot-time transfers remain snapshots of the payload that actually fired.
+    public void RefreshProfiles()
+    {
+        if (!Initialized)
+        {
+            return;
+        }
+        _silentRefresh = true;
+        try
+        {
+            BuildProfiles();
+            foreach (RuntimeGrant grant in _runtimeGrants)
+            {
+                Profiles[grant.Target].Apply(grant.Properties);
+            }
+        }
+        finally
+        {
+            _silentRefresh = false;
+        }
+    }
+
+    private void BuildProfiles()
+    {
+        _buildingProfiles = true;
+        try
+        {
+            CalculateEquipmentProfiles();
+        }
+        finally
+        {
+            _buildingProfiles = false;
+        }
+    }
+
+    private void CalculateEquipmentProfiles()
+    {
+        Profiles = new CombatProfile[MaxBullets];
         for (int slot = 0; slot < MaxBullets; slot++)
         {
             Profiles[slot] = new CombatProfile();
@@ -92,7 +153,10 @@ public class BulletContainer : MonoBehaviour
                 if (layer.Trigger == AmmoTrigger.ReloadRepeat)
                 {
                     int previous = Next(slot - 1);
-                    Transferred?.Invoke(slot, previous);
+                    if (!_silentRefresh)
+                    {
+                        Transferred?.Invoke(slot, previous);
+                    }
                     foreach (AmmoItem original in Layers(previous))
                     {
                         // The linking type repeats an intrinsic, while a rolled repeat
@@ -109,7 +173,6 @@ public class BulletContainer : MonoBehaviour
                 }
             }
         }
-        Reloaded?.Invoke();
     }
 
     private void ApplyReloadTrigger(int source, AmmoItem layer)
